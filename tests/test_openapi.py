@@ -548,7 +548,7 @@ class TestOpenApi3HttpDomain(object):
                                 'description': 'An array of resources.',
                                 'content': {
                                     'application/json': {
-                                        'example': '{"foo": "bar"}'
+                                        'example': {"foo": "bar"}
                                     }
                                 }
                             },
@@ -565,6 +565,8 @@ class TestOpenApi3HttpDomain(object):
 
                ~ some useful description ~
 
+               :status 200:
+                  An array of resources.
 
                **Example request:**
 
@@ -582,17 +584,17 @@ class TestOpenApi3HttpDomain(object):
                       "instance": "string"
                   }
 
-               :status 200:
-                  An array of resources.
 
-                  **Example response:**
+               **Example response:**
 
-                  .. sourcecode:: http
+               .. sourcecode:: http
 
-                     HTTP/1.1 200 OK
-                     Content-Type: application/json
+                  HTTP/1.1 200 OK
+                  Content-Type: application/json
 
-                     {"foo": "bar"}
+                  {
+                      "foo": "bar"
+                  }
 
         ''').lstrip()
 
