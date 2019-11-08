@@ -1248,6 +1248,125 @@ class TestOpenApi3HttpDomain(object):
 
         ''').lstrip()
 
+    def test_string_example(self):
+        text = '\n'.join(openapi30.openapihttpdomain({
+            'openapi': '3.0.0',
+            'paths': {
+                '/resources': {
+                    'get': {
+                        'summary': 'Get resources',
+                        'responses': {
+                            '200': {
+                                'description': 'Something',
+                                'content': {
+                                    'application/json': {
+                                        'schema': {
+                                            'type': 'string',
+                                            'example': 'A sample',
+                                        }
+                                    }
+                                }
+                            },
+                        },
+                    },
+                },
+            },
+        }, examples=True))
+
+        assert text == textwrap.dedent('''
+            .. http:get:: /resources
+               :synopsis: Get resources
+
+               **Get resources**
+
+               :status 200:
+                  Something
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  GET /resources HTTP/1.1
+                  Host: example.com
+
+
+               **Example response:**
+
+               .. sourcecode:: http
+
+                  HTTP/1.1 200 OK
+                  Content-Type: application/json
+
+                  "A sample"
+
+        ''').lstrip()
+
+    def test_ref_example(self):
+        text = '\n'.join(openapi30.openapihttpdomain({
+            'openapi': '3.0.0',
+            'paths': {
+                '/resources': {
+                    'get': {
+                        'summary': 'Get resources',
+                        'responses': {
+                            '200': {
+                                'description': 'Something',
+                                'content': {
+                                    'application/json': {
+                                        'schema': {
+                                            '$ref':
+                                                '#/components/schemas/Data',
+                                        }
+                                    }
+                                }
+                            },
+                        },
+                    },
+                },
+            },
+            'components': {
+                'schemas': {
+                    'Data': {
+                        'type': 'object',
+                        'additionalProperties': True,
+                        'example': {
+                            'prop1': "Sample 1",
+                        }
+                    }
+                }
+            }
+        }, examples=True))
+
+        assert text == textwrap.dedent('''
+            .. http:get:: /resources
+               :synopsis: Get resources
+
+               **Get resources**
+
+               :status 200:
+                  Something
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  GET /resources HTTP/1.1
+                  Host: example.com
+
+
+               **Example response:**
+
+               .. sourcecode:: http
+
+                  HTTP/1.1 200 OK
+                  Content-Type: application/json
+
+                  {
+                      "prop1": "Sample 1"
+                  }
+
+        ''').lstrip()
+
 
 class TestResolveRefs(object):
 

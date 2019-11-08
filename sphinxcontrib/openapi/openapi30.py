@@ -17,8 +17,8 @@ import itertools
 import json
 import re
 
-import six
 from six.moves.urllib import parse
+
 from sphinx.util import logging
 
 from sphinxcontrib.openapi import utils
@@ -120,6 +120,10 @@ def _parse_schema(schema, method):
         return [_parse_schema(schema['items'], method)]
 
     if schema_type == 'object':
+        if 'example' in schema:
+            example = schema.get('example')
+            return collections.OrderedDict(example)
+
         if method and 'properties' in schema and \
                 all(v.get('readOnly', False)
                     for v in schema['properties'].values()):
@@ -176,6 +180,10 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
         examples = content.get('examples')
         example = content.get('example')
 
+        # Try to get the example from the schema
+        if example is None and 'schema' in content:
+            example = content['schema'].get('example')
+
         if examples is None:
             examples = {}
             if not example:
@@ -194,9 +202,10 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                 }
 
         for example in examples.values():
-            if not isinstance(example['value'], six.string_types):
-                example['value'] = json.dumps(
-                    example['value'], indent=4, separators=(',', ': '))
+            # Convert to json.
+            # For a simple string, will add the necessary double quotes
+            example['value'] = json.dumps(
+                example['value'], indent=4, separators=(',', ': '))
 
         for example_name, example in examples.items():
             if 'summary' in example:
@@ -228,9 +237,12 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                 yield '{extra_indent}{indent}Content-Type: {content_type}' \
                     .format(**locals())
 
-            yield ''
-            for example_line in example['value'].splitlines():
-                yield '{extra_indent}{indent}{example_line}'.format(**locals())
+            if content_type:
+                yield ''
+                for example_line in example['value'].splitlines():
+                    yield '{extra_indent}{indent}{example_line}'.format(
+                        **locals()
+                        )
             if example['value'].splitlines():
                 yield ''
 
