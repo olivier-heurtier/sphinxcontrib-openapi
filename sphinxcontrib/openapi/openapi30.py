@@ -302,33 +302,11 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 yield '{indent}{indent}{line}'.format(**locals())
                 # yield ''
 
-    # print request example
-    if render_examples:
-        endpoint_examples = endpoint
-        if query_param_examples:
-            endpoint_examples = endpoint + "?" + \
-                parse.urlencode(query_param_examples)
-
-        # print request example
-        request_content = properties.get('requestBody', {}).get('content', {})
-        for line in _example(
-                request_content,
-                method,
-                endpoint=endpoint_examples,
-                nb_indent=1):
-            yield line
-
     # print response status codes
     for status, response in responses.items():
         yield '{indent}:status {status}:'.format(**locals())
         for line in convert(response['description']).splitlines():
             yield '{indent}{indent}{line}'.format(**locals())
-
-        # print response example
-        if render_examples:
-            for line in _example(
-                    response.get('content', {}), status=status, nb_indent=2):
-                yield line
 
     # print request header params
     for param in filter(lambda p: p['in'] == 'header', parameters):
@@ -344,6 +322,27 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             yield indent + ':resheader {name}:'.format(name=headername)
             for line in convert(header['description']).splitlines():
                 yield '{indent}{indent}{line}'.format(**locals())
+
+    if render_examples:
+        endpoint_examples = endpoint
+        if query_param_examples:
+            endpoint_examples = endpoint + "?" + \
+                parse.urlencode(query_param_examples)
+
+        # print request example
+        request_content = properties.get('requestBody', {}).get('content', {})
+        for line in _example(
+                request_content,
+                method,
+                endpoint=endpoint_examples,
+                nb_indent=1):
+            yield line
+
+        # print response example
+        for status, response in responses.items():
+            for line in _example(
+                    response.get('content', {}), status=status, nb_indent=1):
+                yield line
 
     for cb_name, cb_specs in properties.get('callbacks', {}).items():
         yield ''
