@@ -768,8 +768,6 @@ class TestOpenApi3HttpDomain(object):
 
                ~ some useful description ~
 
-               :status 200:
-                  An array of resources.
 
                **Example request:**
 
@@ -785,6 +783,75 @@ class TestOpenApi3HttpDomain(object):
                       "status": 1,
                       "detail": "string",
                       "instance": "string"
+                  }
+
+               :status 200:
+                  An array of resources.
+
+                  **Example response:**
+
+                  .. sourcecode:: http
+
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
+
+                     {
+                         "foo": "bar"
+                     }
+
+        ''').lstrip()
+
+    def test_group_examples(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, 'group_examples': True})
+        text = '\n'.join(renderer.render_restructuredtext_markup({
+            'openapi': '3.0.0',
+            'paths': {
+                '/problem': {
+                    'post': {
+                        'summary': 'Problem',
+                        'description': '~ some useful description ~',
+                        'requestBody': {
+                            'content': {
+                                'application/json':  {
+                                    'example': {"foo": "bar"}
+                                }
+                            }
+                        },
+                        'responses': {
+                            '200': {
+                                'description': 'An array of resources.',
+                                'content': {
+                                    'application/json': {
+                                        'example': {"foo": "bar"}
+                                    }
+                                }
+                            },
+                        },
+                    },
+                },
+            },
+        }))
+        assert text == textwrap.dedent('''
+            .. http:post:: /problem
+               :synopsis: Problem
+
+               **Problem**
+
+               ~ some useful description ~
+
+               :status 200:
+                  An array of resources.
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  POST /problem HTTP/1.1
+                  Host: example.com
+                  Content-Type: application/json
+
+                  {
+                      "foo": "bar"
                   }
 
 
@@ -1195,10 +1262,6 @@ class TestOpenApi3HttpDomain(object):
                :query integer limit:
                   Show up to `limit` entries.
                   (Required)
-               :status 200:
-                  An array of resources.
-               :reqheader If-None-Match:
-                  Last known resource ETag.
 
                **Example request:**
 
@@ -1207,22 +1270,26 @@ class TestOpenApi3HttpDomain(object):
                   GET /resources/?limit=1 HTTP/1.1
                   Host: example.com
 
+               :status 200:
+                  An array of resources.
 
-               **Example response:**
+                  **Example response:**
 
-               .. sourcecode:: http
+                  .. sourcecode:: http
 
-                  HTTP/1.1 200 OK
-                  Content-Type: application/json
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
 
-                  [
-                      {
-                          "kind": "string",
-                          "description": "string",
-                          "data": "c3RyaW5n"
-                      }
-                  ]
+                     [
+                         {
+                             "kind": "string",
+                             "description": "string",
+                             "data": "c3RyaW5n"
+                         }
+                     ]
 
+               :reqheader If-None-Match:
+                  Last known resource ETag.
 
             .. http:post:: /resources/
                :synopsis: Create Resource
@@ -1231,8 +1298,6 @@ class TestOpenApi3HttpDomain(object):
 
                ~ some useful description ~
 
-               :status 200:
-                  The created resource.
 
                **Example request:**
 
@@ -1247,19 +1312,21 @@ class TestOpenApi3HttpDomain(object):
                       "data": "c3RyaW5n"
                   }
 
+               :status 200:
+                  The created resource.
 
-               **Example response:**
+                  **Example response:**
 
-               .. sourcecode:: http
+                  .. sourcecode:: http
 
-                  HTTP/1.1 200 OK
-                  Content-Type: application/json
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
 
-                  {
-                      "kind": "string",
-                      "description": "string",
-                      "data": "c3RyaW5n"
-                  }
+                     {
+                         "kind": "string",
+                         "description": "string",
+                         "data": "c3RyaW5n"
+                     }
 
 
             .. http:get:: /resources/{kind}
@@ -1271,8 +1338,6 @@ class TestOpenApi3HttpDomain(object):
 
                :param string kind:
                   Kind of resource to list.
-               :status 200:
-                  The created resource.
 
                **Example request:**
 
@@ -1281,19 +1346,21 @@ class TestOpenApi3HttpDomain(object):
                   GET /resources/{kind} HTTP/1.1
                   Host: example.com
 
+               :status 200:
+                  The created resource.
 
-               **Example response:**
+                  **Example response:**
 
-               .. sourcecode:: http
+                  .. sourcecode:: http
 
-                  HTTP/1.1 200 OK
-                  Content-Type: application/json
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
 
-                  {
-                      "kind": "string",
-                      "description": "string",
-                      "data": "c3RyaW5n"
-                  }
+                     {
+                         "kind": "string",
+                         "description": "string",
+                         "data": "c3RyaW5n"
+                     }
 
 
             .. http:patch:: /resources/{kind}
@@ -1305,8 +1372,6 @@ class TestOpenApi3HttpDomain(object):
 
                :param string kind:
                   Kind of resource to list.
-               :status 200:
-                  The created resource.
 
                **Example request:**
 
@@ -1321,19 +1386,21 @@ class TestOpenApi3HttpDomain(object):
                       "data": "c3RyaW5n"
                   }
 
+               :status 200:
+                  The created resource.
 
-               **Example response:**
+                  **Example response:**
 
-               .. sourcecode:: http
+                  .. sourcecode:: http
 
-                  HTTP/1.1 200 OK
-                  Content-Type: application/json
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
 
-                  {
-                      "kind": "string",
-                      "description": "string",
-                      "data": "c3RyaW5n"
-                  }
+                     {
+                         "kind": "string",
+                         "description": "string",
+                         "data": "c3RyaW5n"
+                     }
 
         ''').lstrip()
 
@@ -1406,8 +1473,6 @@ class TestOpenApi3HttpDomain(object):
                :query object values:
                   Dict with explode set to True
                   (Required)
-               :status 200:
-                  OK
 
                **Example request:**
 
@@ -1416,6 +1481,8 @@ class TestOpenApi3HttpDomain(object):
                   GET /resources/?params=p1&params=p2&v1=V1&v2=V2 HTTP/1.1
                   Host: example.com
 
+               :status 200:
+                  OK
         ''').lstrip()
 
     def test_callback(self):
@@ -1574,22 +1641,14 @@ class TestOpenApi3HttpDomain(object):
                :status 200:
                   Something
 
-               **Example request:**
+                  **Example response:**
 
-               .. sourcecode:: http
+                  .. sourcecode:: http
 
-                  GET /resources HTTP/1.1
-                  Host: example.com
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
 
-
-               **Example response:**
-
-               .. sourcecode:: http
-
-                  HTTP/1.1 200 OK
-                  Content-Type: application/json
-
-                  "A sample"
+                     "A sample"
 
         ''').lstrip()
 
@@ -1647,24 +1706,16 @@ class TestOpenApi3HttpDomain(object):
                :status 200:
                   Something
 
-               **Example request:**
+                  **Example response:**
 
-               .. sourcecode:: http
+                  .. sourcecode:: http
 
-                  GET /resources HTTP/1.1
-                  Host: example.com
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
 
-
-               **Example response:**
-
-               .. sourcecode:: http
-
-                  HTTP/1.1 200 OK
-                  Content-Type: application/json
-
-                  {
-                      "prop1": "Sample 1"
-                  }
+                     {
+                         "prop1": "Sample 1"
+                     }
 
         ''').lstrip()
 
@@ -1817,8 +1868,6 @@ class TestResolveRefs(object):
 
                ~ some useful description ~
 
-               :status 200:
-                  Something
 
                **Example request:**
 
@@ -1830,6 +1879,8 @@ class TestResolveRefs(object):
 
                   {}
 
+               :status 200:
+                  Something
         ''').lstrip()
 
 

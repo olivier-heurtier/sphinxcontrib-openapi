@@ -1,6 +1,6 @@
 """OpenAPI spec renderer."""
 
-import collections
+import collections.abc
 import copy
 import functools
 import http.client
@@ -174,7 +174,7 @@ def _get_schema_type(schema):
 
 
 _merge_mappings = deepmerge.Merger(
-    [(collections.Mapping, deepmerge.strategy.dict.DictStrategies("merge"))],
+    [(collections.abc.Mapping, deepmerge.strategy.dict.DictStrategies("merge"))],
     ["override"],
     ["override"],
 ).merge

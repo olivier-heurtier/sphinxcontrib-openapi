@@ -173,7 +173,7 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
     # Provide request samples for GET requests
     if method == 'GET':
         media_type_objects[''] = {
-            'examples': {'Example request': {'value': ''}}}
+            'examples': {'Example request': {'value': '\n'}}}
 
     for content_type, content in media_type_objects.items():
         examples = content.get('examples')
@@ -248,7 +248,7 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
 
 
 def _httpresource(endpoint, method, properties, convert, render_examples,
-                  render_request):
+                  render_request, group_examples=False):
     # https://github.com/OAI/OpenAPI-Specification/blob/3.0.2/versions/3.0.0.md#operation-object
     parameters = properties.get('parameters', [])
     responses = properties['responses']
@@ -314,11 +314,33 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 yield '{indent}{indent}{line}'.format(**locals())
                 # yield ''
 
+    # print request example
+    if render_examples and not group_examples:
+        endpoint_examples = endpoint
+        if query_param_examples:
+            endpoint_examples = endpoint + "?" + \
+                parse.urlencode(query_param_examples)
+
+        # print request example
+        request_content = properties.get('requestBody', {}).get('content', {})
+        for line in _example(
+                request_content,
+                method,
+                endpoint=endpoint_examples,
+                nb_indent=1):
+            yield line
+
     # print response status codes
     for status, response in responses.items():
         yield '{indent}:status {status}:'.format(**locals())
         for line in convert(response['description']).splitlines():
             yield '{indent}{indent}{line}'.format(**locals())
+
+        # print response example
+        if render_examples and not group_examples:
+            for line in _example(
+                    response.get('content', {}), status=status, nb_indent=2):
+                yield line
 
     # print request header params
     for param in filter(lambda p: p['in'] == 'header', parameters):
@@ -335,7 +357,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             for line in convert(header['description']).splitlines():
                 yield '{indent}{indent}{line}'.format(**locals())
 
-    if render_examples:
+    if render_examples and group_examples:
         endpoint_examples = endpoint
         if query_param_examples:
             endpoint_examples = endpoint + "?" + \
@@ -369,7 +391,8 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                         cb_properties,
                         convert=convert,
                         render_examples=render_examples,
-                        render_request=render_request):
+                        render_request=render_request,
+                        group_examples=group_examples):
                     if line:
                         yield indent+indent+line
                     else:
@@ -450,7 +473,8 @@ def openapihttpdomain(spec, **options):
                     properties,
                     convert,
                     render_examples='examples' in options,
-                    render_request=render_request))
+                    render_request=render_request,
+                    group_examples='group_examples' in options))
 
         for key in groups.keys():
             if key:
@@ -468,6 +492,7 @@ def openapihttpdomain(spec, **options):
                     properties,
                     convert,
                     render_examples='examples' in options,
-                    render_request=render_request))
+                    render_request=render_request,
+                    group_examples='group_examples' in options))
 
     return iter(itertools.chain(*generators))
