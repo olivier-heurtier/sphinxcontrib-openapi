@@ -802,7 +802,11 @@ class TestOpenApi3HttpDomain(object):
         ''').lstrip()
 
     def test_group_examples(self):
-        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, 'group_examples': True})
+        renderer = renderers.HttpdomainOldRenderer(None, {
+            'examples': True,
+            'group_examples': True
+            }
+        )
         text = '\n'.join(renderer.render_restructuredtext_markup({
             'openapi': '3.0.0',
             'paths': {
