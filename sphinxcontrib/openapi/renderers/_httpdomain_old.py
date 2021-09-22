@@ -25,6 +25,8 @@ class HttpdomainOldRenderer(abc.RestructuredTextRenderer):
         "examples": directives.flag,  # render examples when passed
         # Render request/response examples in one block or inline with the response codes.
         "group_examples": directives.flag,  # render examples in one block
+        # Include links to entity description
+        "entities": directives.flag,
         # Group endpoints by tags when passed. By default, no grouping is
         # applied and endpoints are rendered in the order they met in spec.
         "group": directives.flag,

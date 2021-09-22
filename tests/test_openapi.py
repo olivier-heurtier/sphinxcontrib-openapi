@@ -1790,15 +1790,20 @@ class TestResolveRefs(object):
             'foo': {
                 'a': 13,
                 'b': {
+                    '$entity_ref': '#/foo/b',
                     'c': True,
                 }
             },
             'bar': {
+                '$entity_ref': '#/foo/b',
                 'c': True,
             },
             'baz': [
                 13,
-                {'c': True},
+                {
+                    '$entity_ref': '#/foo/b',
+                    'c': True
+                },
                 'batman',
             ]
         }
@@ -1820,9 +1825,11 @@ class TestResolveRefs(object):
         # pdb.set_trace()
         assert utils._resolve_refs(baseuri, data) == {
             'bar': {
+                '$entity_ref': 'testdata/foo.json#/foo/b',
                 'c': True,
             },
             'baz': {
+                '$entity_ref': 'testdata/foo.yaml#/foo',
                 'a': 17,
                 'b': 13,
             },

@@ -12,6 +12,7 @@ import copy
 
 import collections
 import collections.abc
+import hashlib
 
 from datetime import datetime
 import itertools
@@ -247,8 +248,14 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                 yield ''
 
 
+def ref2link(entities, ref):
+    name = ref.split('/')[-1]
+    ref = entities(ref)
+    return ':ref:`{name} <{ref}>`'.format(**locals())
+
+
 def _httpresource(endpoint, method, properties, convert, render_examples,
-                  render_request, group_examples=False):
+                  render_request, group_examples=False, entities=False):
     # https://github.com/OAI/OpenAPI-Specification/blob/3.0.2/versions/3.0.0.md#operation-object
     parameters = properties.get('parameters', [])
     responses = properties['responses']
@@ -313,6 +320,23 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 # yield indent + line
                 yield '{indent}{indent}{line}'.format(**locals())
                 # yield ''
+    elif entities:
+        desc = properties.get('requestBody', {}).get('description', '')
+        request_content = properties.get('requestBody', {}).get('content', {})
+        if request_content and 'application/json' in request_content:
+            schema = request_content['application/json'].get('schema', {})
+            if '$entity_ref' in schema:
+                ref = schema['$entity_ref']
+                if entities:
+                    link = ref2link(entities, ref)
+                    yield '{indent}:form body: {desc}. See {link}'.format(**locals())
+                else:
+                    yield '{indent}:form body: {desc}.'.format(**locals())
+            else:
+                for prop, v in schema.get('properties', {}).items():
+                    ptype = v.get('type', '')
+                    desc = v.get('description', '')
+                    yield '{indent}:jsonparam {ptype} {prop}: {desc}'.format(**locals())
 
     # print request example
     if render_examples and not group_examples:
@@ -335,6 +359,14 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         yield '{indent}:status {status}:'.format(**locals())
         for line in convert(response['description']).splitlines():
             yield '{indent}{indent}{line}'.format(**locals())
+        if entities:
+            content = response.get('content', {})
+            if content and 'application/json' in content:
+                schema = content['application/json']['schema']
+                if '$entity_ref' in schema:
+                    ref = schema['$entity_ref']
+                    link = ref2link(entities, ref)
+                    yield '{indent}{indent}See {link}'.format(**locals())
 
         # print response example
         if render_examples and not group_examples:
@@ -392,7 +424,8 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                         convert=convert,
                         render_examples=render_examples,
                         render_request=render_request,
-                        group_examples=group_examples):
+                        group_examples=group_examples,
+                        entities=entities):
                     if line:
                         yield indent+indent+line
                     else:
@@ -405,6 +438,14 @@ def _header(title):
     yield title
     yield '=' * len(title)
     yield ''
+
+
+def _entities(spec, ref):
+    m = hashlib.md5()
+    m.update(spec['info'].get('title', '').encode('utf-8'))
+    m.update(spec['info'].get('version', '0.0').encode('utf-8'))
+    key = m.hexdigest()
+    return key+ref.split('#')[1]
 
 
 def openapihttpdomain(spec, **options):
@@ -458,6 +499,13 @@ def openapihttpdomain(spec, **options):
 
     convert = utils.get_text_converter(options)
 
+    if 'entities' in options:
+        def f_entities(x):
+            return _entities(spec, x)
+        entities = f_entities
+    else:
+        entities = False
+
     # https://github.com/OAI/OpenAPI-Specification/blob/3.0.2/versions/3.0.0.md#paths-object
     if 'group' in options:
         groups = collections.OrderedDict(
@@ -474,7 +522,8 @@ def openapihttpdomain(spec, **options):
                     convert,
                     render_examples='examples' in options,
                     render_request=render_request,
-                    group_examples='group_examples' in options))
+                    group_examples='group_examples' in options,
+                    entities=entities))
 
         for key in groups.keys():
             if key:
@@ -493,6 +542,7 @@ def openapihttpdomain(spec, **options):
                     convert,
                     render_examples='examples' in options,
                     render_request=render_request,
-                    group_examples='group_examples' in options))
+                    group_examples='group_examples' in options,
+                    entities=entities))
 
     return iter(itertools.chain(*generators))

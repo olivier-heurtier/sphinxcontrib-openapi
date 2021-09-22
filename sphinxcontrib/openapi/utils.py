@@ -78,8 +78,14 @@ def _resolve_refs(uri, spec):
 
     def _do_resolve(node):
         if isinstance(node, collections.abc.Mapping) and '$ref' in node:
+            ref = node['$ref']
             with resolver.resolving(node['$ref']) as resolved:
-                return _do_resolve(resolved)  # might have recursive references
+                ret = _do_resolve(resolved)  # might have recursive references
+            # Restore the $ref in case we want to
+            # separate the entities in the document
+            if isinstance(ret, collections.abc.Mapping):
+                ret['$entity_ref'] = ref
+            return ret
         elif isinstance(node, collections.abc.Mapping):
             for k, v in node.items():
                 node[k] = _do_resolve(v)

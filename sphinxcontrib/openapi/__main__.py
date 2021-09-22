@@ -32,6 +32,16 @@ def main():
         dest='examples',
         help="Include examples")
     parser.add_argument(
+        "--group-examples",
+        action='store_true',
+        dest='group_examples',
+        help="Group examples after the operation description")
+    parser.add_argument(
+        "-E", "--entities",
+        action='store_true',
+        dest='entities',
+        help="Include links to entities")
+    parser.add_argument(
         "-g", "--group",
         action='store_true',
         dest='group',
@@ -56,6 +66,10 @@ def main():
         openapi_options['paths'] = options.paths
     if options.examples:
         openapi_options['examples'] = True
+    if options.group_examples:
+        openapi_options['group_examples'] = True
+    if options.entities:
+        openapi_options['entities'] = True
     if options.group:
         openapi_options['group'] = True
 
