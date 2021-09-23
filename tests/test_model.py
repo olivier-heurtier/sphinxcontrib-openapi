@@ -1,12 +1,7 @@
-import os
 import textwrap
 import collections
 
-import py
-import pytest
-
 from sphinxcontrib.openapi import renderers
-from sphinxcontrib.openapi import utils
 
 
 class TestOpenApi3HttpDomain(object):
@@ -59,7 +54,7 @@ class TestOpenApi3HttpDomain(object):
         }))
 
         assert text == textwrap.dedent("""
-        .. _30565a8911a6bb487e3745c0ea3c8224/components/schemas/Resource:
+        .. _/components/schemas/Resource:
 
         Resource
         ''''''''
@@ -68,7 +63,7 @@ class TestOpenApi3HttpDomain(object):
             :header-rows: 1
             :widths: 25 25 45 15
             :class: longtable
-        
+
             * - Attribute
               - Type
               - Description
@@ -78,12 +73,12 @@ class TestOpenApi3HttpDomain(object):
               - Kind
               - Yes
             * - ``instance``
-              - :ref:`Instance <30565a8911a6bb487e3745c0ea3c8224/components/schemas/Instance>`
+              - :ref:`Instance </components/schemas/Instance>`
               -
               -
 
 
-        .. _30565a8911a6bb487e3745c0ea3c8224/components/schemas/Instance:
+        .. _/components/schemas/Instance:
 
         Instance
         ''''''''
@@ -107,22 +102,22 @@ class TestOpenApi3HttpDomain(object):
               -
 
 
-        .. _30565a8911a6bb487e3745c0ea3c8224/components/schemas/InstanceList:
-       
+        .. _/components/schemas/InstanceList:
+
         InstanceList
         ''''''''''''
-       
+
         .. list-table:: InstanceList
             :header-rows: 1
             :widths: 25 25 45 15
             :class: longtable
-       
+
             * - Attribute
               - Type
               - Description
               - Mandatory
             * - N/A
-              - array of :ref:`Instance <30565a8911a6bb487e3745c0ea3c8224/components/schemas/Instance>`
+              - array of :ref:`Instance </components/schemas/Instance>`
               -
               -
 
