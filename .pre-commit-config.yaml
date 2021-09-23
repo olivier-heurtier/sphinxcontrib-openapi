@@ -36,7 +36,7 @@ repos:
             | sphinxcontrib/openapi/openapi30.py
             | sphinxcontrib/openapi/directive.py
             | sphinxcontrib/openapi/utils.py
-            | sphinxcontrib/openapi/renders/_model.py
+            | sphinxcontrib/openapi/renderers/_model.py
             | tests/test_openapi.py
             | tests/test_model.py
             | tests/conftest.py
