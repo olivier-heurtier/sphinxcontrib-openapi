@@ -22,6 +22,7 @@ except DistributionNotFound:
 _BUILTIN_RENDERERS = {
     "httpdomain": renderers.HttpdomainRenderer,
     "httpdomain:old": renderers.HttpdomainOldRenderer,
+    "model": renderers.ModelRenderer,
 }
 _DEFAULT_RENDERER_NAME = "httpdomain:old"
 
