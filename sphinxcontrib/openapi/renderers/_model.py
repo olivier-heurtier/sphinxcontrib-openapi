@@ -1,5 +1,6 @@
 
 from . import abc
+from .. import utils
 
 import hashlib
 
@@ -197,8 +198,8 @@ def ref2link(entities, ref):
 
 def _entities(spec, ref):
     m = hashlib.md5()
-    m.update(spec['info'].get('title', '').encode('utf-8'))
-    m.update(spec['info'].get('version', '0.0').encode('utf-8'))
+    m.update(spec.get('info',{}).get('title', '').encode('utf-8'))
+    m.update(spec.get('info',{}).get('version', '0.0').encode('utf-8'))
     key = m.hexdigest()
     return key+ref
 
@@ -216,33 +217,14 @@ class ModelRenderer(abc.RestructuredTextRenderer):
 
     def render_restructuredtext_markup(self, spec):
 
+        utils.normalize_spec(spec, **self._options)
+
         def entities(x):
             return _entities(spec, x)
-
 
         schemas = spec['components']['schemas']
         for name,schema in schemas.items():
             for line in build_table(name, schema, entities):
-                yield line
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                yield line.rstrip()
+            yield ''
 
