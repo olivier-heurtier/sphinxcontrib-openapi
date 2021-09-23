@@ -6,9 +6,4 @@ from ._httpdomain import HttpdomainRenderer
 from ._model import ModelRenderer
 
 
-__all__ = [
-    "abc",
-    "HttpdomainOldRenderer",
-    "HttpdomainRenderer",
-    "ModelRenderer"
-]
+__all__ = ["abc", "HttpdomainOldRenderer", "HttpdomainRenderer", "ModelRenderer"]
