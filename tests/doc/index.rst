@@ -18,4 +18,3 @@ Data Model
 """"""""""
 
 .. openapi:model:: ../OpenAPI-Specification/examples/v3.0/petstore.yaml
-
