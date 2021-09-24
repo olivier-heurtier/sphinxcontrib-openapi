@@ -7,6 +7,8 @@ import hashlib
 
 def build_table(name, schema, entities):
 
+    if not 'type' in schema:
+        schema['type'] = 'object'
     if schema.get('type', '') not in ['object', 'array']:
         return ''
 

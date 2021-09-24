@@ -23,6 +23,7 @@ _BUILTIN_RENDERERS = {
     "httpdomain": renderers.HttpdomainRenderer,
     "httpdomain:old": renderers.HttpdomainOldRenderer,
     "model": renderers.ModelRenderer,
+    "toc": renderers.TocRenderer,
 }
 _DEFAULT_RENDERER_NAME = "httpdomain:old"
 
