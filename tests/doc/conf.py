@@ -1,6 +1,6 @@
 
-project = 'sphinxcontrib-openapi-test'
+project = "sphinxcontrib-openapi-test"
 
-extensions = ['sphinxcontrib.openapi']
-source_suffix = '.rst'
-master_doc = 'index'
+extensions = ["sphinxcontrib.openapi"]
+source_suffix = ".rst"
+master_doc = "index"

@@ -7,4 +7,10 @@ from ._model import ModelRenderer
 from ._toc import TocRenderer
 
 
-__all__ = ["abc", "HttpdomainOldRenderer", "HttpdomainRenderer", "ModelRenderer", "TocRenderer"]
+__all__ = [
+    "abc",
+    "HttpdomainOldRenderer",
+    "HttpdomainRenderer",
+    "ModelRenderer",
+    "TocRenderer"
+]
