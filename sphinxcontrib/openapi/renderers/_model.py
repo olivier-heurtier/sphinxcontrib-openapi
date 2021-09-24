@@ -3,11 +3,12 @@ from . import abc
 from .. import utils
 
 import hashlib
+from docutils.parsers.rst import directives
 
 
-def build_table(name, schema, entities):
+def build_table(name, schema, entities, options):
 
-    if not 'type' in schema:
+    if 'type' not in schema:
         schema['type'] = 'object'
     if schema.get('type', '') not in ['object', 'array']:
         return ''
@@ -16,7 +17,7 @@ def build_table(name, schema, entities):
     yield '.. _'+entities('/components/schemas/'+name)+':'
     yield ''
     yield name
-    yield "'"*len(name)
+    yield options['header'] * len(name)
     yield ''
     yield '.. list-table:: ' + name
     yield '    :header-rows: 1'
@@ -218,12 +219,18 @@ class ModelRenderer(abc.RestructuredTextRenderer):
 
     option_spec = {
         # prefix (components/schemas)
+        "prefix": str,
         # header marker (')
+        "header": directives.single_char_or_unicode,
     }
 
     def __init__(self, state, options):
         self._state = state
         self._options = options
+        if 'header' not in self._options:
+            self._options["header"] = "'"
+        if 'prefix' not in self._options:
+            self._options["prefix"] = "/components/schemas"
 
     def render_restructuredtext_markup(self, spec):
 
@@ -232,8 +239,10 @@ class ModelRenderer(abc.RestructuredTextRenderer):
         def entities(x):
             return _entities(spec, x)
 
-        schemas = spec['components']['schemas']
+        schemas = spec
+        for p in filter(None, self._options["prefix"].split('/')):
+            schemas = schemas.get(p, {})
         for name, schema in schemas.items():
-            for line in build_table(name, schema, entities):
+            for line in build_table(name, schema, entities, self._options):
                 yield line.rstrip()
             yield ''

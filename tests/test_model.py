@@ -122,3 +122,43 @@ class TestOpenApi3HttpDomain(object):
               -
 
         """)
+
+    def test_options(self):
+        renderer = renderers.ModelRenderer(None, {"header": "?", "prefix": "definitions"})
+        text = '\n'.join(renderer.render_restructuredtext_markup({
+            'openapi': '3.0.0',
+            'paths': {},
+            'definitions': {
+                'Resource': {
+                    'type': 'object',
+                    'required': ['kind'],
+                    'properties': collections.OrderedDict([
+                        ('kind', {
+                            'description': 'Kind',
+                            'type': 'string',
+                        }),
+                    ]),
+                },
+            },
+        }))
+
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Resource:
+
+        Resource
+        ????????
+
+        .. list-table:: Resource
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``kind``
+              - string
+              - Kind
+              - Yes
+        """)
