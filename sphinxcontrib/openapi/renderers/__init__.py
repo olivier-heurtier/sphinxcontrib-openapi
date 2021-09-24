@@ -12,5 +12,5 @@ __all__ = [
     "HttpdomainOldRenderer",
     "HttpdomainRenderer",
     "ModelRenderer",
-    "TocRenderer"
+    "TocRenderer",
 ]
