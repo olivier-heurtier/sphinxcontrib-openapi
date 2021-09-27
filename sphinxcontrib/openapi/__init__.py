@@ -11,6 +11,7 @@
 
 from pkg_resources import get_distribution, DistributionNotFound
 from sphinxcontrib.openapi import renderers, directive
+from sphinx.domains import Domain
 
 try:
     __version__ = get_distribution(__name__).version
@@ -19,38 +20,20 @@ except DistributionNotFound:
     __version__ = None
 
 
-_BUILTIN_RENDERERS = {
-    "httpdomain": renderers.HttpdomainRenderer,
-    "httpdomain:old": renderers.HttpdomainOldRenderer,
-    "model": renderers.ModelRenderer,
-    "toc": renderers.TocRenderer,
-}
 _DEFAULT_RENDERER_NAME = "httpdomain:old"
 
 
-def _register_rendering_directives(app, conf):
-    """Register rendering directives based on effective configuration."""
+class OpenAPIDomain(Domain):
+    name = 'openapi'
+    label = 'OpenAPI Documentation'
 
-    renderers_map = dict(_BUILTIN_RENDERERS, **conf.openapi_renderers)
-
-    for renderer_name, renderer_cls in renderers_map.items():
-        app.add_directive(
-            "openapi:%s" % renderer_name,
-            directive.create_directive_from_renderer(renderer_cls),
-        )
-
-    if conf.openapi_default_renderer not in renderers_map:
-        raise ValueError(
-            "invalid 'openapi_default_renderer' value: "
-            "no such renderer: '%s'" % conf.openapi_default_renderer
-        )
-
-    app.add_directive(
-        "openapi",
-        directive.create_directive_from_renderer(
-            renderers_map[conf.openapi_default_renderer]
-        ),
-    )
+    directives = {
+        'httpdomain:old': directive.create_directive_from_renderer(
+            renderers.HttpdomainOldRenderer),
+        'httpdomain': directive.create_directive_from_renderer(renderers.HttpdomainRenderer),
+        'model': directive.create_directive_from_renderer(renderers.ModelRenderer),
+        'toc': directive.create_directive_from_renderer(renderers.TocRenderer),
+    }
 
 
 def setup(app):
@@ -79,6 +62,10 @@ def setup(app):
             )
 
     app.setup_extension("sphinxcontrib.httpdomain")
-    app.connect("config-inited", _register_rendering_directives)
+    app.add_domain(OpenAPIDomain)
+    app.add_directive(
+        "openapi",
+        directive.create_directive_from_renderer(renderers.HttpdomainOldRenderer)
+    )
 
     return {"version": __version__, "parallel_read_safe": True}

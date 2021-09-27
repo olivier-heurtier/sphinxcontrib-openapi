@@ -27,7 +27,7 @@ setup(
     setup_requires=["setuptools_scm >= 1.15"],
     install_requires=[
         "sphinx >= 2.0",
-        "sphinxcontrib-httpdomain >= 1.5.0",
+        "sphinxcontrib-httpdomain >= 1.8.0",
         "PyYAML >= 3.12",
         "jsonschema >= 2.5.1",
         "m2r >= 0.2",
