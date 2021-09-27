@@ -1,10 +1,8 @@
 import textwrap
 import collections
 
-import pytest
 import yaml
 from sphinxcontrib.openapi import renderers
-import jsonschema
 
 
 class TestOpenApi3HttpDomain(object):
@@ -97,11 +95,11 @@ class TestOpenApi3HttpDomain(object):
               - Mandatory
             * - ``instance``
               - string
-              - Instance. Constraints: possible values are: ``A``, ``B``
+              - Instance. Constraints: possible values are ``A``, ``B``
               -
             * - ``instanceType``
               - string
-              - Constraints: possible values are: ``T1``, ``T2``
+              - Constraints: possible values are ``T1``, ``T2``
               -
 
 
@@ -191,6 +189,7 @@ class TestOpenApi3HttpDomain(object):
                   description: base64 encoded characters
                 field4:
                   type: boolean
+                  default: false
 
         """))
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
@@ -210,11 +209,11 @@ class TestOpenApi3HttpDomain(object):
               - Description
               - Mandatory
             * - ``field1``
-              - string/int32
+              - integer/int32
               - Signed 32 bits
               -
             * - ``field2``
-              - string/float
+              - number/float
               - Float
               -
             * - ``field3``
@@ -222,8 +221,8 @@ class TestOpenApi3HttpDomain(object):
               - base64 encoded characters
               -
             * - ``field4``
-              - string
-              -
+              - boolean
+              - Default: ``false``.
               -
         """)
 
@@ -256,10 +255,18 @@ class TestOpenApi3HttpDomain(object):
                     properties:
                       field2:
                         type: string
+                        pattern: "a-zA-Z0-9"
                       field3:
                         type: array
                         items:
                           $ref: '#/components/schemas/Test1'
+                      field4:
+                        type: array
+                        items:
+                          type: string
+                        minItems: 1
+                        maxItems: 10
+                        uniqueItems: True
         """))
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent("""
@@ -307,11 +314,15 @@ class TestOpenApi3HttpDomain(object):
               -
             * - ``table[].field2``
               - string
-              -
+              - Constraints: pattern ``a-zA-Z0-9``
               - Yes
             * - ``table[].field3``
               - Array of :ref:`Test1 </components/schemas/Test1>`
               -
+              -
+            * - ``table[].field4``
+              - Array of string
+              - Constraints: minItems is 1; maxItems is 10; items must be unique
               -
         """)
 
@@ -331,6 +342,7 @@ class TestOpenApi3HttpDomain(object):
                   type: integer
                   format: int32
                   description: Signed _32_ bits
+                  default: 5
         """))
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent("""
@@ -351,8 +363,8 @@ class TestOpenApi3HttpDomain(object):
               - Description
               - Mandatory
             * - ``field1``
-              - string/int32
-              - Signed *32* bits
+              - integer/int32
+              - Signed *32* bits. Default: ``5``.
               -
         """)
 
@@ -390,11 +402,11 @@ class TestOpenApi3HttpDomain(object):
               - Description
               - Mandatory
             * - ``field1``
-              - string/int32
+              - integer/int32
               -
               -
 
-        Examples:
+        Example #1:
 
         .. code-block:: json
 
@@ -438,17 +450,19 @@ class TestOpenApi3HttpDomain(object):
               - Description
               - Mandatory
             * - ``field1``
-              - string/int32
+              - integer/int32
               -
               -
 
-        Examples:
+        Example #1:
 
         .. code-block:: json
 
             {
               "field1": 12
             }
+
+        Example #2:
 
         .. code-block:: json
 
@@ -474,5 +488,389 @@ class TestOpenApi3HttpDomain(object):
               example:
                 field1: true
         """))
-        with pytest.raises(jsonschema.ValidationError):
-            '\n'.join(renderer.render_restructuredtext_markup(spec))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field1``
+              - integer/int32
+              -
+              -
+
+        Example #1:
+
+        **Invalid example**
+        """)
+
+    def test_oneof(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              type: object
+              additionalProperties:
+                oneOf:
+                - type: string
+                - type: integer
+                - type: number
+                - type: boolean
+                - $ref: '#/components/schemas/Test4'
+            Test2:
+              type: object
+              properties:
+                field2:
+                  oneOf:
+                  - type: string
+                  - type: integer
+                  - type: number
+                  - type: boolean
+            Test3:
+              oneOf:
+                - $ref: '#/components/schemas/Test4'
+                - type: object
+                  required:
+                    - field4
+            Test4:
+              type: object
+              properties:
+                field4:
+                  type: string
+              additionalProperties: false
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``...``
+              - One of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
+              - Additional properties
+              -
+
+
+        .. _/components/schemas/Test2:
+
+        Test2
+        '''''
+
+        .. list-table:: Test2
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field2``
+              - One of string, integer, number, boolean
+              -
+              -
+
+
+        .. _/components/schemas/Test3:
+
+        Test3
+        '''''
+
+        .. list-table:: Test3
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - N/A
+              - One of :ref:`Test4 </components/schemas/Test4>`, object
+              -
+              -
+
+
+        .. _/components/schemas/Test4:
+
+        Test4
+        '''''
+
+        .. list-table:: Test4
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field4``
+              - string
+              -
+              -
+        """)
+
+    def test_allof(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              type: object
+              additionalProperties:
+                allOf:
+                - type: string
+                - type: integer
+                - type: number
+                - type: boolean
+                - $ref: '#/components/schemas/Test4'
+            Test2:
+              type: object
+              properties:
+                field2:
+                  allOf:
+                  - type: string
+                  - type: integer
+                  - type: number
+                  - type: boolean
+            Test3:
+              allOf:
+                - $ref: '#/components/schemas/Test4'
+                - type: object
+                  required:
+                    - field4
+            Test4:
+              type: object
+              properties:
+                field4:
+                  type: string
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``...``
+              - All of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
+              - Additional properties
+              -
+
+
+        .. _/components/schemas/Test2:
+
+        Test2
+        '''''
+
+        .. list-table:: Test2
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field2``
+              - All of string, integer, number, boolean
+              -
+              -
+
+
+        .. _/components/schemas/Test3:
+
+        Test3
+        '''''
+
+        .. list-table:: Test3
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - N/A
+              - All of :ref:`Test4 </components/schemas/Test4>`, object
+              -
+              -
+
+
+        .. _/components/schemas/Test4:
+
+        Test4
+        '''''
+
+        .. list-table:: Test4
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field4``
+              - string
+              -
+              -
+        """)
+
+    def test_anyof(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              type: object
+              additionalProperties:
+                anyOf:
+                - type: string
+                - type: integer
+                - type: number
+                - type: boolean
+                - $ref: '#/components/schemas/Test4'
+            Test2:
+              type: object
+              properties:
+                field2:
+                  anyOf:
+                  - type: string
+                  - type: integer
+                  - type: number
+                  - type: boolean
+            Test3:
+              anyOf:
+                - $ref: '#/components/schemas/Test4'
+                - type: object
+                  required:
+                    - field4
+            Test4:
+              type: object
+              properties:
+                field4:
+                  type: string
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``...``
+              - Any of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
+              - Additional properties
+              -
+
+
+        .. _/components/schemas/Test2:
+
+        Test2
+        '''''
+
+        .. list-table:: Test2
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field2``
+              - Any of string, integer, number, boolean
+              -
+              -
+
+
+        .. _/components/schemas/Test3:
+
+        Test3
+        '''''
+
+        .. list-table:: Test3
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - N/A
+              - Any of :ref:`Test4 </components/schemas/Test4>`, object
+              -
+              -
+
+
+        .. _/components/schemas/Test4:
+
+        Test4
+        '''''
+
+        .. list-table:: Test4
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``field4``
+              - string
+              -
+              -
+        """)
