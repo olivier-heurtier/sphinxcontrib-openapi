@@ -3,11 +3,99 @@ from . import abc
 from .. import utils
 
 import hashlib
+import json
+from jsonschema import validate
 from docutils.parsers.rst import directives
 
 
-def build_table(name, schema, entities, options):
+def _get_description(obj, convert):
+    return convert(obj.get('description', '')).strip()
 
+
+def _get_contraints(obj):
+    c = []
+    if 'minItems' in obj:
+        c.append('minItems: ' + str(obj['minItems']))
+    if 'maxItems' in obj:
+        c.append('maxItems: ' + str(obj['maxItems']))
+    if 'minLength' in obj:
+        c.append('minLength: ' + str(obj['minLength']))
+    if 'maxLength' in obj:
+        c.append('maxLength: ' + str(obj['maxLength']))
+    if 'minimum' in obj:
+        c.append('minimum: ' + str(obj['minimum']))
+    if 'maximum' in obj:
+        c.append('maximum: ' + str(obj['maximum']))
+    if 'enum' in obj:
+        c.append('possible values are: ' +
+                 ', '.join(
+                    [
+                        '``{}``'.format(x) for x in obj['enum']
+                    ]
+                 ))
+    return '; '.join(c)
+
+
+def _add_constraints(D, C):
+    if C:
+        if D and D[-1] != '.':
+            D += '.'
+        if D:
+            D += ' '
+        D += 'Constraints: ' + C
+    return D
+
+
+def _process_one(prefix, schema, mandatory, entities, convert):
+    type = schema.get('type', 'object')
+    print(prefix, type, schema.keys(), mandatory)
+    if '$entity_ref' in schema and type == 'object' and prefix:
+        T = 'Object of type ' + ref2link(entities, schema['$entity_ref'])
+        D = _get_description(schema, convert)
+        ret = ['.'.join(prefix), T, D, mandatory]
+        yield ret
+    elif type == 'array':
+        ref = schema['items'].get('$entity_ref', None)
+        if ref:
+            yield [
+                '.'.join(prefix),
+                'Array of ' + ref2link(entities, ref),
+                _get_description(schema, convert),
+                mandatory
+            ]
+        else:
+            T = "Array"
+            D = _get_description(schema, convert)
+            C = _get_contraints(schema)
+            D = _add_constraints(D, C)
+            yield ['.'.join(prefix), T, D, mandatory]
+            if prefix:
+                prefix[-1] += '[]'
+            else:
+                prefix = ['[]']
+            for x in _process_one(prefix, schema['items'], False, entities, convert):
+                yield x
+    elif type == 'object':
+        required = schema.get('required', [])
+        for prop_name, prop in schema.get('properties', {}).items():
+            for x in _process_one(
+                    prefix+[prop_name],
+                    prop,
+                    prop_name in required,
+                    entities,
+                    convert):
+                yield x
+    elif type in ['string', 'integer', 'number', 'boolean']:
+        T = 'string'
+        if schema.get('format', ''):
+            T += '/' + schema.get('format', '')
+        D = _get_description(schema, convert)
+        C = _get_contraints(schema)
+        D = _add_constraints(D, C)
+        yield ['.'.join(prefix), T, D, mandatory]
+
+
+def _build(name, schema, entities, convert, options):
     if 'type' not in schema:
         schema['type'] = 'object'
     if schema.get('type', '') not in ['object', 'array']:
@@ -19,6 +107,10 @@ def build_table(name, schema, entities, options):
     yield name
     yield options['header'] * len(name)
     yield ''
+    D = _get_description(schema, convert)
+    if D:
+        yield D
+        yield ''
     yield '.. list-table:: ' + name
     yield '    :header-rows: 1'
     yield '    :widths: 25 25 45 15'
@@ -29,170 +121,28 @@ def build_table(name, schema, entities, options):
     yield '      - Description'
     yield '      - Mandatory'
 
-    attributeValue = ''
-    typeValue = ''
-    descriptionValue = ''
-    mandatoryValue = ''
-    subtype = None
-    mand = []
-    row = []
-    for param in schema.keys():
-        if param == 'required':
-            mand = schema[param]
-        elif param == 'properties':
-            attributeValues = schema[param]
-            for attribute in attributeValues.keys():
-                if attribute in mand:
-                    mandatoryValue = 'Yes'
-
-                row = []
-                attributeValue = attribute
-                if '$entity_ref' in attributeValue:
-                    refatt = attributeValue.replace("#/components/schemas/", '')
-                    row.append(refatt)
-                else:
-                    row.append('``'+attributeValue+'``')
-
-                propertyValues = attributeValues[attribute]
-                typerefvalue = ''
-
-                # do a first loop to initialize some fields
-                for property in propertyValues.keys():
-                    if property == 'type':
-                        typeValue = str(propertyValues[property])+typerefvalue
-                    elif property == 'description':
-                        descriptionValue = str(propertyValues[property])
-
-                for property in propertyValues.keys():
-
-                    if property == 'format':
-                        if str(propertyValues[property]) == 'date':
-                            typeValue += ' ('+str(propertyValues[property])+')'
-                        elif str(propertyValues[property]) == 'date-time':
-                            typeValue += ' (date & time)'
-
-                        elif str(propertyValues[property]) == 'byte':
-                            typeValue += ' ('+'base64 encoded'+')'
-
-                        elif str(propertyValues[property]) == 'binary':
-                            typeValue += ' ('+str(propertyValues[property])+')'
-
-                        else:
-                            typeValue += ' ('+str(propertyValues[property])+')'
-
-                    elif property == 'items':
-
-                        if '$entity_ref' in propertyValues[property]:
-                            refval = propertyValues[property]['$entity_ref']
-
-                            # add ref to the type
-                            typerefvalue = ' of ' + ref2link(entities, refval)
-                            typeValue += typerefvalue
-                        elif 'properties' in propertyValues[property]:
-                            typeValue = 'Array of objects'
-                            attributeValue += '[]'
-                            subtype = propertyValues[property]
-
-                    elif property == 'minItems':
-                        descriptionValue += ' minItems: ' + str(propertyValues[property])
-                    elif property == 'maxItems':
-                        descriptionValue += ' maxItems: ' + str(propertyValues[property])
-
-                    elif property == 'minLength':
-                        descriptionValue += ' minLength: ' + str(propertyValues[property])
-                    elif property == 'maxLength':
-                        descriptionValue += ' maxLength: ' + str(propertyValues[property])
-                    elif property == 'minimum':
-                        descriptionValue += ' minimum: ' + str(propertyValues[property])
-                    elif property == 'maximum':
-                        descriptionValue += ' maximum: ' + str(propertyValues[property])
-                    elif property == 'enum':
-                        descriptionValue += ' Possible values are: ' +\
-                            ', '.join(
-                                [
-                                    '``{}``'.format(x) for x in propertyValues[property]
-                                ]
-                            )
-                    elif property == '$entity_ref':
-                        if propertyValues['type'] == 'object':
-                            typeValue = ref2link(entities, propertyValues[property])
-                    elif property == 'properties' and \
-                            propertyValues.get('type', None) in ['object', None]:
-                        typeValue = 'Object'
-                        subtype = propertyValues
-                    elif property == 'properties' and \
-                            propertyValues.get('type', None) != 'object':
-                        # Update the code accordingly
-                        typkey2 = propertyValues[property]['key']['$entity_ref']
-                        typval2 = propertyValues[property]['value']['$entity_ref']
-
-                        dictkval11 = typkey2.replace('#/components/schemas/', '')
-                        dictkval12 = typval2.replace('#/components/schemas/', '')
-                        dictkval = 'key : ' + dictkval11 + ' ,' + 'value : ' + dictkval12
-                        typeValue = dictkval
-                row.append(typeValue)
-                row.append(descriptionValue)
-                row.append(mandatoryValue)
-                yield '    * - ' + row[0]
-                yield '      - ' + row[1]
-                yield '      - ' + row[2]
-                yield '      - ' + row[3]
-                row = []
-                if subtype:
-                    print('*******')
-                    # include the attributes of the sub-object
-                    # (this is not a ref to another entity)
-                    # for line in ...
-                    # sub_head,sub_body = self._make_table_contents(swagger,subtype)
-                    # for b in sub_body:
-                    #     body.append([attributeValue+'.'+b[0]]+b[1:])
-                    subtype = None
-                attributeValue = ''
-                typeValue = ''
-                descriptionValue = ''
-                mandatoryValue = ''
-        elif param == 'type':
-            typeValue = schema[param]
-        elif param == 'enum':
-            descriptionValue = 'Possible values are: ' + \
-                ', '.join(['``'+x+'``' for x in schema[param]])
-            attributeValue = 'N/A'
-        elif param == 'items':
-            propertyValues = schema[param]
-            if '$entity_ref' in propertyValues:
-                refval = propertyValues['$entity_ref']
-
-                # add ref to the type
-                typeValue += ' of ' + ref2link(entities, refval)
-                yield '    * - N/A'
-                yield '      - ' + typeValue
-                yield '      - ' + descriptionValue
-                yield '      - ' + mandatoryValue
-        elif param == 'example':
-            continue
-        elif param == 'additionalProperties':
-            if schema[param] is True:
-                yield '    * - ...'
-                yield '      - '
-                yield '      - '
-                yield '      - '
-        elif param == '$entity_ref':
-            continue
+    for item in _process_one([], schema, False, entities, convert):
+        if str(item[0]):
+            yield '    * - ``' + str(item[0]) + '``'
         else:
-            attributeValue = schema[param]
-            if isinstance(attributeValue, bool):
+            yield '    * - N/A'
+        yield '      - ' + str(item[1])
+        yield '      - ' + str(item[2])
+        yield '      - ' + 'Yes' if item[3] else '      -'
+
+    if 'example' in schema or 'examples' in schema:
+        yield ''
+        yield 'Examples:'
+        for ex in [schema.get('example', None)] + schema.get('examples', []):
+            if ex is None:
                 continue
-            if '$entity_ref' in attributeValue:
-                attributeValue = attributeValue['$entity_ref'].replace('#/components/schemas/', '')
-    if(attributeValue != ''):
-        yield '    * - ' + attributeValue
-        yield '      - ' + typeValue
-        yield '      - ' + descriptionValue
-        yield '      - ' + mandatoryValue
-        attributeValue = ''
-        typeValue = ''
-        descriptionValue = ''
-        mandatoryValue = ''
+            # validate the example against this schema
+            validate(instance=ex, schema=schema)
+            yield ''
+            yield '.. code-block:: json'
+            yield ''
+            for line in json.dumps(ex, indent=2).splitlines():
+                yield '    ' + line
 
 
 def ref2link(entities, ref):
@@ -222,6 +172,8 @@ class ModelRenderer(abc.RestructuredTextRenderer):
         "prefix": str,
         # header marker (')
         "header": directives.single_char_or_unicode,
+        # Markup format to render OpenAPI descriptions.
+        "format": str,
     }
 
     def __init__(self, state, options):
@@ -236,6 +188,8 @@ class ModelRenderer(abc.RestructuredTextRenderer):
 
         utils.normalize_spec(spec, **self._options)
 
+        convert = utils.get_text_converter(self._options)
+
         def entities(x):
             return _entities(spec, x)
 
@@ -243,6 +197,6 @@ class ModelRenderer(abc.RestructuredTextRenderer):
         for p in filter(None, self._options["prefix"].split('/')):
             schemas = schemas.get(p, {})
         for name, schema in schemas.items():
-            for line in build_table(name, schema, entities, self._options):
+            for line in _build(name, schema, entities, convert, self._options):
                 yield line.rstrip()
             yield ''
