@@ -12,6 +12,8 @@
 from pkg_resources import get_distribution, DistributionNotFound
 from sphinxcontrib.openapi import renderers, directive
 from sphinx.domains import Domain
+import yaml
+from docutils import nodes
 
 try:
     __version__ = get_distribution(__name__).version
@@ -21,6 +23,16 @@ except DistributionNotFound:
 
 
 _DEFAULT_RENDERER_NAME = "httpdomain:old"
+
+
+def oasversion_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+    fn = text
+    env = inliner.document.settings.env
+    rel_fn, fn = env.relfn2path(fn)
+    y = yaml.load(open(fn,'r').read(), Loader=yaml.FullLoader)
+    s = y['info']['version']
+    retnode = nodes.inline(text=s,role=typ.lower(), classes=[typ])
+    return [retnode], []
 
 
 class OpenAPIDomain(Domain):
@@ -35,6 +47,9 @@ class OpenAPIDomain(Domain):
         'toc': directive.create_directive_from_renderer(renderers.TocRenderer),
     }
 
+    roles = {
+        'version': oasversion_role
+    }
 
 def setup(app):
     app.add_config_value("openapi_default_renderer", _DEFAULT_RENDERER_NAME, "html")
