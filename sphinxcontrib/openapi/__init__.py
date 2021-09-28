@@ -29,9 +29,9 @@ def oasversion_role(typ, rawtext, text, lineno, inliner, options={}, content=[])
     fn = text
     env = inliner.document.settings.env
     rel_fn, fn = env.relfn2path(fn)
-    y = yaml.load(open(fn,'r').read(), Loader=yaml.FullLoader)
+    y = yaml.load(open(fn, 'r').read(), Loader=yaml.FullLoader)
     s = y['info']['version']
-    retnode = nodes.inline(text=s,role=typ.lower(), classes=[typ])
+    retnode = nodes.inline(text=s, role=typ.lower(), classes=[typ])
     return [retnode], []
 
 
@@ -50,6 +50,7 @@ class OpenAPIDomain(Domain):
     roles = {
         'version': oasversion_role
     }
+
 
 def setup(app):
     app.add_config_value("openapi_default_renderer", _DEFAULT_RENDERER_NAME, "html")
