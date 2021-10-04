@@ -1,7 +1,7 @@
-
 from . import abc
 from .. import utils
 
+import re
 import hashlib
 import json
 import jsonschema
@@ -267,6 +267,12 @@ class ModelRenderer(abc.RestructuredTextRenderer):
         "header": directives.single_char_or_unicode,
         # Markup format to render OpenAPI descriptions.
         "format": str,
+        # A list of entities to be rendered. Must be whitespace delimited.
+        "entities": lambda s: s.split(),
+        # Regular expression patterns to include/exclude entities to/from
+        # rendering. The patterns must be whitespace delimited.
+        "include": lambda s: s.split(),
+        "exclude": lambda s: s.split(),
     }
 
     def __init__(self, state, options):
@@ -283,13 +289,51 @@ class ModelRenderer(abc.RestructuredTextRenderer):
 
         convert = utils.get_text_converter(self._options)
 
-        def entities(x):
-            return _entities(spec, x)
-
         schemas = spec
         for p in filter(None, self._options["prefix"].split('/')):
             schemas = schemas.get(p, {})
-        for name, schema in schemas.items():
-            for line in _build(name, schema, entities, convert, self._options):
+
+        # Entities list to be processed
+        entities = []
+
+        # If 'entities' are passed we've got to ensure they exist within an OpenAPI
+        # spec; otherwise raise error and ask user to fix that.
+        if 'entities' in self._options:
+            if not set(self._options['entities']).issubset(schemas.keys()):
+                raise ValueError(
+                    'One or more entities are not defined in the spec: %s.' % (
+                        ', '.join(set(self._options['entities']) - set(schemas.keys())),
+                    )
+                )
+            entities = self._options['entities']
+
+        # Check against regular expressions to be included
+        if 'include' in self._options:
+            for i in self._options['include']:
+                ir = re.compile(i)
+                for entity in schemas.keys():
+                    if ir.match(entity):
+                        entities.append(entity)
+
+        # If no include nor entities option, then take full entity
+        if 'include' not in self._options and 'entities' not in self._options:
+            entities = schemas.keys()
+
+        # Remove entities matching regexp
+        if 'exclude' in self._options:
+            tmp_entities = []
+            for e in self._options['exclude']:
+                er = re.compile(e)
+                for entity in entities:
+                    if not er.match(entity):
+                        tmp_entities.append(entity)
+            entities = tmp_entities
+
+        def __entities(x):
+            return _entities(spec, x)
+
+        for name in entities:
+            schema = schemas[name]
+            for line in _build(name, schema, __entities, convert, self._options):
                 yield line.rstrip()
             yield ''

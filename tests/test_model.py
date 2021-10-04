@@ -874,3 +874,113 @@ class TestOpenApi3HttpDomain(object):
               -
               -
         """)
+
+    def test_filtering(self):
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            A:
+              properties:
+                a:
+                  type: string
+            B:
+              properties:
+                b:
+                  type: string
+            AB:
+              properties:
+                ab:
+                  type: string
+        """))
+
+        renderer = renderers.ModelRenderer(None, {"include": ["A.*"]})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/A:
+
+        A
+        '
+
+        .. list-table:: A
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``a``
+              - string
+              -
+              -
+
+
+        .. _/components/schemas/AB:
+
+        AB
+        ''
+
+        .. list-table:: AB
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``ab``
+              - string
+              -
+              -
+        """)
+
+        renderer = renderers.ModelRenderer(None, {"include": ["A.*"], "exclude": [".*B"]})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/A:
+
+        A
+        '
+
+        .. list-table:: A
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``a``
+              - string
+              -
+              -
+        """)
+
+        renderer = renderers.ModelRenderer(None, {"entities": ["AB", "B"], "exclude": ["AB"]})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/B:
+
+        B
+        '
+
+        .. list-table:: B
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Mandatory
+            * - ``b``
+              - string
+              -
+              -
+        """)
