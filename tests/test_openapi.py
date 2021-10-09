@@ -1149,7 +1149,10 @@ class TestOpenApi3HttpDomain(object):
                             'content': {
                                 'application/json':  {
                                     'schema': {
-                                        '$ref': '#/components/schemas/Resource',  # noqa
+                                            'type': 'array',
+                                            'items': {
+                                                '$ref': '#/components/schemas/Resource',  # noqa
+                                            },
                                     },
                                 }
                             }
@@ -1248,6 +1251,11 @@ class TestOpenApi3HttpDomain(object):
                                 'format': 'byte',
                             }),
                         ]),
+                        'example': {
+                            'kind': 'KIND',
+                            'description': 'DESC',
+                            'data': 'ABCD',
+                        }
                     },
                 },
             },
@@ -1286,9 +1294,9 @@ class TestOpenApi3HttpDomain(object):
 
                      [
                          {
-                             "kind": "string",
-                             "description": "string",
-                             "data": "c3RyaW5n"
+                             "kind": "KIND",
+                             "description": "DESC",
+                             "data": "ABCD"
                          }
                      ]
 
@@ -1311,10 +1319,12 @@ class TestOpenApi3HttpDomain(object):
                   Host: example.com
                   Content-Type: application/json
 
-                  {
-                      "description": "string",
-                      "data": "c3RyaW5n"
-                  }
+                  [
+                      {
+                          "description": "DESC",
+                          "data": "ABCD"
+                      }
+                  ]
 
                :status 200:
                   The created resource.
@@ -1327,9 +1337,9 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "kind": "string",
-                         "description": "string",
-                         "data": "c3RyaW5n"
+                         "kind": "KIND",
+                         "description": "DESC",
+                         "data": "ABCD"
                      }
 
 
@@ -1361,9 +1371,9 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "kind": "string",
-                         "description": "string",
-                         "data": "c3RyaW5n"
+                         "kind": "KIND",
+                         "description": "DESC",
+                         "data": "ABCD"
                      }
 
 
@@ -1386,8 +1396,8 @@ class TestOpenApi3HttpDomain(object):
                   Content-Type: application/json
 
                   {
-                      "description": "string",
-                      "data": "c3RyaW5n"
+                      "description": "DESC",
+                      "data": "ABCD"
                   }
 
                :status 200:
@@ -1401,9 +1411,9 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "kind": "string",
-                         "description": "string",
-                         "data": "c3RyaW5n"
+                         "kind": "KIND",
+                         "description": "DESC",
+                         "data": "ABCD"
                      }
 
         ''').lstrip()

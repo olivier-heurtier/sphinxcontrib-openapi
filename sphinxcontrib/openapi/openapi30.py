@@ -124,6 +124,16 @@ def _parse_schema(schema, method):
         return [_parse_schema(schema['items'], method)]
 
     if schema_type == 'object':
+        if 'example' in schema:
+            example = schema.get('example')
+            if example:
+                example = copy.deepcopy(example)
+                # filters out readonly properties
+                if method and 'properties' in schema:
+                    for k, v in schema.get('properties', {}).items():
+                        if v.get('readOnly', False):
+                            del example[k]
+                return collections.OrderedDict(example)
         if method and 'properties' in schema and \
                 all(v.get('readOnly', False)
                     for v in schema['properties'].values()):
@@ -183,6 +193,13 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
         # Try to get the example from the schema
         if example is None and 'schema' in content:
             example = content['schema'].get('example')
+            if example:
+                example = copy.deepcopy(example)
+                # filters out readonly properties
+                if method and 'properties' in content['schema']:
+                    for k, v in content['schema'].get('properties', {}).items():
+                        if v.get('readOnly', False):
+                            del example[k]
 
         if examples is None:
             examples = {}
