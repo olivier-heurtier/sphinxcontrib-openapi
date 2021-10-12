@@ -658,7 +658,7 @@ class TestOpenApi2HttpDomain(object):
 class TestOpenApi3HttpDomain(object):
 
     def test_basic(self):
-        renderer = renderers.HttpdomainOldRenderer(None, {})
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, 'group_examples': True})
         text = '\n'.join(renderer.render_restructuredtext_markup({
             'openapi': '3.0.0',
             'paths': {
@@ -678,6 +678,13 @@ class TestOpenApi3HttpDomain(object):
                                 'in': 'query',
                                 'schema': {'type': 'integer'},
                                 'description': 'Show up to `limit` entries.',
+                                'required': True,
+                            },
+                            {
+                                'name': 'offset',
+                                'in': 'query',
+                                'schema': {'type': 'integer'},
+                                'description': 'Start from offset.',
                             },
                             {
                                 'name': 'If-None-Match',
@@ -719,10 +726,42 @@ class TestOpenApi3HttpDomain(object):
                   Kind of resource to list.
                :query integer limit:
                   Show up to `limit` entries.
+                  (Required)
+               :query integer offset:
+                  Start from offset.
                :reqheader If-None-Match:
                   Last known resource ETag.
                :status 200:
                   An array of resources.
+
+               **Example request:**
+          
+               .. sourcecode:: http
+          
+                  GET /resources/{kind}?limit=1&offset=1 HTTP/1.1
+                  Host: example.com
+                  Content-Type: application/json
+          
+                  {"foo2": "bar2"}
+          
+          
+               **Example request:**
+          
+               .. sourcecode:: http
+          
+                  GET /resources/{kind}?limit=1&offset=1 HTTP/1.1
+                  Host: example.com
+          
+          
+               **Example response:**
+          
+               .. sourcecode:: http
+          
+                  HTTP/1.1 200 OK
+                  Content-Type: application/json
+          
+                  {"foo": "bar"}
+         
         ''').lstrip()
 
     def test_rfc7807(self):

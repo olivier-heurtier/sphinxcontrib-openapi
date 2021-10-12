@@ -318,16 +318,16 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             yield '{indent}{indent}{line}'.format(**locals())
         if param.get('required', False):
             yield '{indent}{indent}(Required)'.format(**locals())
-            example = _parse_schema(param['schema'], method)
-            example = param.get('example', example)
-            if param.get('explode', False) and isinstance(example, list):
-                for v in example:
-                    query_param_examples.append((param['name'], v))
-            elif param.get('explode', False) and isinstance(example, dict):
-                for k, v in example.items():
-                    query_param_examples.append((k, v))
-            else:
-                query_param_examples.append((param['name'], example))
+        example = _parse_schema(param['schema'], method)
+        example = param.get('example', example)
+        if param.get('explode', False) and isinstance(example, list):
+            for v in example:
+                query_param_examples.append((param['name'], v))
+        elif param.get('explode', False) and isinstance(example, dict):
+            for k, v in example.items():
+                query_param_examples.append((k, v))
+        else:
+            query_param_examples.append((param['name'], example))
 
     # print request content
     if render_request:
