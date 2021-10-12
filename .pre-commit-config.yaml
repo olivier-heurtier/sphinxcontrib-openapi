@@ -43,7 +43,6 @@ repos:
             | tests/test_toc.py
             | tests/conftest.py
             | tests/test_spec_examples.py
-            | tests/doc
           )
 
   - repo: https://gitlab.com/pycqa/flake8
