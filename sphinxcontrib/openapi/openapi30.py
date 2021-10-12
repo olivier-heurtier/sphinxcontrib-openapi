@@ -154,6 +154,8 @@ def _parse_schema(schema, method):
 
 
 def _example(media_type_objects, method=None, endpoint=None, status=None,
+             reqheader_examples={},
+             resheader_examples={},
              nb_indent=0):
     """
     Format examples in `Media Type Object` openapi v3 to HTTP request or
@@ -247,13 +249,18 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                 if content_type:
                     yield '{extra_indent}{indent}Content-Type: {content_type}'\
                         .format(**locals())
-
+                for k, v in reqheader_examples.items():
+                    yield '{extra_indent}{indent}{k}: {v}'\
+                        .format(**locals())
             # Print http response example
             else:
                 yield '{extra_indent}{indent}HTTP/1.1 {status} {status_text}' \
                     .format(**locals())
                 yield '{extra_indent}{indent}Content-Type: {content_type}' \
                     .format(**locals())
+                for k, v in resheader_examples.items():
+                    yield '{extra_indent}{indent}{k}: {v}'\
+                        .format(**locals())
 
             if content_type:
                 yield ''
@@ -355,6 +362,21 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                     desc = v.get('description', '')
                     yield '{indent}:jsonparam {ptype} {prop}: {desc}'.format(**locals())
 
+    # print request header params
+    reqheader_examples = {}
+    for param in filter(lambda p: p['in'] == 'header', parameters):
+        yield indent + ':reqheader {name}:'.format(**param)
+        for line in convert(param.get('description', '')).splitlines():
+            yield '{indent}{indent}{line}'.format(**locals())
+        if param.get('required', False):
+            yield '{indent}{indent}(Required)'.format(**locals())
+        ex = param.get('example', param.get('schema', {}).get('example', None))
+        if ex is None:
+            # try examples
+            ex = param.get('examples', param.get('schema', {}).get('examples', [None]))[0]
+        if ex:
+            reqheader_examples[param['name']] = ex
+
     # print request example
     if render_examples and not group_examples:
         endpoint_examples = endpoint
@@ -368,8 +390,23 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 request_content,
                 method,
                 endpoint=endpoint_examples,
+                reqheader_examples=reqheader_examples,
                 nb_indent=1):
             yield line
+
+    # print response headers
+    resheader_examples = {}
+    for status, response in responses.items():
+        for headername, header in response.get('headers', {}).items():
+            yield indent + ':resheader {name}:'.format(name=headername)
+            for line in convert(header['description']).splitlines():
+                yield '{indent}{indent}{line}'.format(**locals())
+            ex = header.get('example', header.get('schema', {}).get('example', None))
+            if ex is None:
+                # try examples
+                ex = header.get('examples', header.get('schema', {}).get('examples', [None]))[0]
+            if ex:
+                resheader_examples[param['name']] = ex
 
     # print response status codes
     for status, response in responses.items():
@@ -388,23 +425,11 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         # print response example
         if render_examples and not group_examples:
             for line in _example(
-                    response.get('content', {}), status=status, nb_indent=2):
+                    response.get('content', {}),
+                    status=status,
+                    resheader_examples=resheader_examples,
+                    nb_indent=2):
                 yield line
-
-    # print request header params
-    for param in filter(lambda p: p['in'] == 'header', parameters):
-        yield indent + ':reqheader {name}:'.format(**param)
-        for line in convert(param.get('description', '')).splitlines():
-            yield '{indent}{indent}{line}'.format(**locals())
-        if param.get('required', False):
-            yield '{indent}{indent}(Required)'.format(**locals())
-
-    # print response headers
-    for status, response in responses.items():
-        for headername, header in response.get('headers', {}).items():
-            yield indent + ':resheader {name}:'.format(name=headername)
-            for line in convert(header['description']).splitlines():
-                yield '{indent}{indent}{line}'.format(**locals())
 
     if render_examples and group_examples:
         endpoint_examples = endpoint
@@ -418,13 +443,19 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 request_content,
                 method,
                 endpoint=endpoint_examples,
+                reqheader_examples=reqheader_examples,
+                resheader_examples=resheader_examples,
                 nb_indent=1):
             yield line
 
         # print response example
         for status, response in responses.items():
             for line in _example(
-                    response.get('content', {}), status=status, nb_indent=1):
+                    response.get('content', {}),
+                    status=status,
+                    reqheader_examples=reqheader_examples,
+                    resheader_examples=resheader_examples,
+                    nb_indent=1):
                 yield line
 
     for cb_name, cb_specs in properties.get('callbacks', {}).items():

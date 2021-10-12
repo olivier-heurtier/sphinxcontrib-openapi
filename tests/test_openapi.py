@@ -15,6 +15,8 @@ import collections
 import py
 import pytest
 
+import yaml
+
 from sphinxcontrib.openapi import renderers
 from sphinxcontrib.openapi import openapi20
 from sphinxcontrib.openapi import utils
@@ -717,10 +719,10 @@ class TestOpenApi3HttpDomain(object):
                   Kind of resource to list.
                :query integer limit:
                   Show up to `limit` entries.
-               :status 200:
-                  An array of resources.
                :reqheader If-None-Match:
                   Last known resource ETag.
+               :status 200:
+                  An array of resources.
         ''').lstrip()
 
     def test_rfc7807(self):
@@ -1088,11 +1090,11 @@ class TestOpenApi3HttpDomain(object):
                :query integer limit:
                   Show up to `limit` entries.
                   (Required)
-               :status 200:
-                  An array of resources.
                :reqheader If-None-Match:
                   Last known resource ETag.
                   (Required)
+               :status 200:
+                  An array of resources.
         ''').lstrip()
 
     def test_example_generation(self):
@@ -1274,6 +1276,8 @@ class TestOpenApi3HttpDomain(object):
                :query integer limit:
                   Show up to `limit` entries.
                   (Required)
+               :reqheader If-None-Match:
+                  Last known resource ETag.
 
                **Example request:**
 
@@ -1300,8 +1304,6 @@ class TestOpenApi3HttpDomain(object):
                          }
                      ]
 
-               :reqheader If-None-Match:
-                  Last known resource ETag.
 
             .. http:post:: /resources/
                :synopsis: Create Resource
@@ -1773,6 +1775,127 @@ class TestOpenApi3HttpDomain(object):
 
                :status 201:
                   ok
+        ''').lstrip()
+
+    def test_header_example(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths:
+          /resources:
+            post:
+              summary: Summary
+              description: test service
+              parameters:
+                - name: Digest
+                  in: header
+                  description: request header
+                  schema:
+                    type: string
+                  example: "MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5="
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: string
+                    example: REQUEST
+                    required: true
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: RESPONSE
+                  headers:
+                    digest:
+                      description: response header
+                      schema:
+                        type: string
+                      example: "MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5="
+        """))
+
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+            .. http:post:: /resources
+               :synopsis: Summary
+
+               **Summary**
+
+               test service
+
+               :reqheader Digest:
+                  request header
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  POST /resources HTTP/1.1
+                  Host: example.com
+                  Content-Type: application/json
+                  Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+
+                  REQUEST
+
+               :resheader digest:
+                  response header
+               :status 200:
+                  Success
+
+                  **Example response:**
+
+                  .. sourcecode:: http
+
+                     HTTP/1.1 200 OK
+                     Content-Type: application/json
+                     Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+
+                     RESPONSE
+
+        ''').lstrip()
+
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, 'group_examples': True})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+            .. http:post:: /resources
+               :synopsis: Summary
+
+               **Summary**
+
+               test service
+
+               :reqheader Digest:
+                  request header
+               :resheader digest:
+                  response header
+               :status 200:
+                  Success
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  POST /resources HTTP/1.1
+                  Host: example.com
+                  Content-Type: application/json
+                  Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+
+                  REQUEST
+
+
+               **Example response:**
+
+               .. sourcecode:: http
+
+                  HTTP/1.1 200 OK
+                  Content-Type: application/json
+                  Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+
+                  RESPONSE
+
         ''').lstrip()
 
 
