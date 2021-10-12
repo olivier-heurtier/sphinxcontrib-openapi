@@ -4,6 +4,8 @@ from .. import utils
 import re
 import hashlib
 import json
+import textwrap
+
 import jsonschema
 from jsonschema import validate
 from docutils.parsers.rst import directives
@@ -49,18 +51,21 @@ def _get_contraints(obj):
         c.append("read only")
     if 'writeOnly' in obj:
         c.append("write only")
+    s = '; '.join(c)
+    if s:
+        s = "Constraints: " + s
     if 'deprecated' in obj:
-        c.append("**DEPRECATED**")
-    return '; '.join(c)
+        s += "\n\n**DEPRECATED**"
+    return s
 
 
 def _add_constraints(D, C):
     if C:
         if D and D[-1] != '.':
             D += '.'
-        if D:
+        if D and C and C[0] != '\n':
             D += ' '
-        D += 'Constraints: ' + C
+        D += C
     return D
 
 
@@ -212,15 +217,15 @@ def _build(name, schema, entities, convert, options):
     yield '    * - Attribute'
     yield '      - Type'
     yield '      - Description'
-    yield '      - Mandatory'
+    yield '      - Required'
 
     for item in _process_one([], schema, False, entities, convert):
         if str(item[0]):
             yield '    * - ``' + str(item[0]) + '``'
         else:
             yield '    * - N/A'
-        yield '      - ' + str(item[1])
-        yield '      - ' + str(item[2])
+        yield '      - ' + textwrap.indent(str(item[1]), '        ').lstrip()
+        yield '      - ' + textwrap.indent(str(item[2]), '        ').lstrip()
         yield '      - ' + 'Yes' if item[3] else '      -'
 
     if 'example' in schema or 'examples' in schema:

@@ -658,7 +658,13 @@ class TestOpenApi2HttpDomain(object):
 class TestOpenApi3HttpDomain(object):
 
     def test_basic(self):
-        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, 'group_examples': True})
+        renderer = renderers.HttpdomainOldRenderer(
+            None,
+            {
+                'examples': True,
+                'group_examples': True
+            }
+        )
         text = '\n'.join(renderer.render_restructuredtext_markup({
             'openapi': '3.0.0',
             'paths': {
@@ -735,33 +741,33 @@ class TestOpenApi3HttpDomain(object):
                   An array of resources.
 
                **Example request:**
-          
+
                .. sourcecode:: http
-          
+
                   GET /resources/{kind}?limit=1&offset=1 HTTP/1.1
                   Host: example.com
                   Content-Type: application/json
-          
+
                   {"foo2": "bar2"}
-          
-          
+
+
                **Example request:**
-          
+
                .. sourcecode:: http
-          
+
                   GET /resources/{kind}?limit=1&offset=1 HTTP/1.1
                   Host: example.com
-          
-          
+
+
                **Example response:**
-          
+
                .. sourcecode:: http
-          
+
                   HTTP/1.1 200 OK
                   Content-Type: application/json
-          
+
                   {"foo": "bar"}
-         
+
         ''').lstrip()
 
     def test_rfc7807(self):
@@ -926,6 +932,7 @@ class TestOpenApi3HttpDomain(object):
                     'get': {
                         'summary': 'Index',
                         'description': '~ some useful description ~',
+                        'deprecated': True,
                         'responses': {
                             '200': {
                                 'description': 'Index',
@@ -1059,6 +1066,8 @@ class TestOpenApi3HttpDomain(object):
                **Index**
 
                ~ some useful description ~
+
+               **DEPRECATED**
 
                :status 200:
                   Index

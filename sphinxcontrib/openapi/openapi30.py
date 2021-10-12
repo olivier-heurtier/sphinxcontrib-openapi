@@ -300,6 +300,10 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             yield '{indent}{line}'.format(**locals())
         yield ''
 
+    if properties.get('deprecated', False):
+        yield '{indent}**DEPRECATED**'.format(**locals())
+        yield ''
+
     # print request's path params
     for param in filter(lambda p: p['in'] == 'path', parameters):
         yield indent + ':param {type} {name}:'.format(

@@ -2,15 +2,15 @@
 Pet Store
 =========
 
-Version :openapi:version:`../OpenAPI-Specification/examples/v3.0/petstore.yaml`
+Version :openapi:version:`petstore.yaml`
 
 .. sidebar:: Services
 
-    .. openapi:toc:: ../OpenAPI-Specification/examples/v3.0/petstore.yaml
+    .. openapi:toc:: petstore.yaml
 
 Services
 """"""""
-.. openapi:: ../OpenAPI-Specification/examples/v3.0/petstore.yaml
+.. openapi:: petstore.yaml
     :examples:
     :group:
     :group_examples:
@@ -19,4 +19,4 @@ Services
 Data Model
 """"""""""
 
-.. openapi:model:: ../OpenAPI-Specification/examples/v3.0/petstore.yaml
+.. openapi:model:: petstore.yaml

@@ -41,6 +41,11 @@ class TestOpenApi3HttpDomain(object):
                             ('instanceType', {
                                 '$ref': '#/components/schemas/InstanceType',
                             }),
+                            ('dep', {
+                                'description': 'Deprecation',
+                                'type': 'string',
+                                'deprecated': True,
+                            }),
                         ]),
                     },
                     'InstanceList': {
@@ -71,7 +76,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``kind``
               - string
               - Kind. Constraints: read only
@@ -95,14 +100,22 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``instance``
               - string
-              - Instance. Constraints: possible values are ``A``, ``B``; write only; **DEPRECATED**
+              - Instance. Constraints: possible values are ``A``, ``B``; write only
+
+                **DEPRECATED**
               -
             * - ``instanceType``
               - string
               - Constraints: possible values are ``T1``, ``T2``
+              -
+            * - ``dep``
+              - string
+              - Deprecation.
+
+                **DEPRECATED**
               -
 
 
@@ -119,7 +132,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - N/A
               - Array of :ref:`Instance </components/schemas/Instance>`
               -
@@ -160,7 +173,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``kind``
               - string
               - Kind
@@ -210,7 +223,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field1``
               - integer/int32
               - Signed 32 bits
@@ -286,7 +299,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - N/A
               - Array
               -
@@ -310,7 +323,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``table``
               - Array
               -
@@ -364,7 +377,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field1``
               - integer/int32
               - Signed *32* bits. Default: ``5``.
@@ -403,7 +416,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field1``
               - integer/int32
               -
@@ -451,7 +464,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field1``
               - integer/int32
               -
@@ -506,7 +519,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field1``
               - integer/int32
               -
@@ -571,7 +584,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``...``
               - One of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
               - Additional properties
@@ -591,7 +604,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field2``
               - One of string, integer, number, boolean
               -
@@ -611,7 +624,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - N/A
               - One of :ref:`Test4 </components/schemas/Test4>`, object
               -
@@ -631,7 +644,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field4``
               - string
               -
@@ -691,7 +704,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``...``
               - All of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
               - Additional properties
@@ -711,7 +724,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field2``
               - All of string, integer, number, boolean
               -
@@ -731,7 +744,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - N/A
               - All of :ref:`Test4 </components/schemas/Test4>`, object
               -
@@ -751,7 +764,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field4``
               - string
               -
@@ -811,7 +824,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``...``
               - Any of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
               - Additional properties
@@ -831,7 +844,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field2``
               - Any of string, integer, number, boolean
               -
@@ -851,7 +864,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - N/A
               - Any of :ref:`Test4 </components/schemas/Test4>`, object
               -
@@ -871,7 +884,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``field4``
               - string
               -
@@ -915,7 +928,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``a``
               - string
               -
@@ -935,7 +948,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``ab``
               - string
               -
@@ -958,7 +971,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``a``
               - string
               -
@@ -981,7 +994,7 @@ class TestOpenApi3HttpDomain(object):
             * - Attribute
               - Type
               - Description
-              - Mandatory
+              - Required
             * - ``b``
               - string
               -
