@@ -1857,7 +1857,13 @@ class TestOpenApi3HttpDomain(object):
 
         ''').lstrip()
 
-        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, 'group_examples': True})
+        renderer = renderers.HttpdomainOldRenderer(
+            None,
+            {
+                'examples': True,
+                'group_examples': True
+            }
+        )
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent('''
             .. http:post:: /resources
