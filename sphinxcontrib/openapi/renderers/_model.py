@@ -45,6 +45,12 @@ def _get_contraints(obj):
                         '``{}``'.format(x) for x in obj['enum']
                     ]
                  ))
+    if 'readOnly' in obj:
+        c.append("read only")
+    if 'writeOnly' in obj:
+        c.append("write only")
+    if 'deprecated' in obj:
+        c.append("**DEPRECATED**")
     return '; '.join(c)
 
 

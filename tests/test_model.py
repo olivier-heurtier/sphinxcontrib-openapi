@@ -21,6 +21,7 @@ class TestOpenApi3HttpDomain(object):
                             ('kind', {
                                 'description': 'Kind',
                                 'type': 'string',
+                                'readOnly': True,
                             }),
                             ('instance', {
                                 '$ref': '#/components/schemas/Instance',
@@ -34,6 +35,8 @@ class TestOpenApi3HttpDomain(object):
                                 'description': 'Instance',
                                 'type': 'string',
                                 'enum': ['A', 'B'],
+                                'writeOnly': True,
+                                'deprecated': True,
                             }),
                             ('instanceType', {
                                 '$ref': '#/components/schemas/InstanceType',
@@ -71,7 +74,7 @@ class TestOpenApi3HttpDomain(object):
               - Mandatory
             * - ``kind``
               - string
-              - Kind
+              - Kind. Constraints: read only
               - Yes
             * - ``instance``
               - Object of type :ref:`Instance </components/schemas/Instance>`
@@ -95,7 +98,7 @@ class TestOpenApi3HttpDomain(object):
               - Mandatory
             * - ``instance``
               - string
-              - Instance. Constraints: possible values are ``A``, ``B``
+              - Instance. Constraints: possible values are ``A``, ``B``; write only; **DEPRECATED**
               -
             * - ``instanceType``
               - string
