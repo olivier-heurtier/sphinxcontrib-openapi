@@ -1657,6 +1657,7 @@ class TestOpenApi3HttpDomain(object):
 
                      **Response callback**
 
+                     :jsonparam string status:
                      :status 200:
                         Success
 
@@ -1950,6 +1951,153 @@ class TestOpenApi3HttpDomain(object):
 
                   RESPONSE
 
+        ''').lstrip()
+
+    def test_entities(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'entities': True})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths:
+          /resources:
+            post:
+              summary: Summary
+              description: test service
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: string
+                    example: REQUEST
+                    required: true
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: RESPONSE
+          /resources2:
+            post:
+              summary: Summary
+              description: test service
+              requestBody:
+                description: Body
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Test1'
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Test1'
+          /resources3:
+            post:
+              summary: Summary
+              description: test service
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Test1'
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Test1'
+        components:
+          schemas:
+            Test1:
+              type: object
+              properties:
+                field1:
+                  type: integer
+                  format: int32
+                  description: Signed 32 bits
+        """))
+
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+          .. http:post:: /resources
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :status 200:
+                Success.
+                Object of type string.
+
+          .. http:post:: /resources2
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :form body: Body.
+                Object of type :ref:`Test1 </components/schemas/Test1>`.
+             :status 200:
+                Success.
+                Object of type :ref:`Test1 </components/schemas/Test1>`.
+
+          .. http:post:: /resources3
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :form body: Array of :ref:`Test1 </components/schemas/Test1>`.
+             :status 200:
+                Success.
+                Array of :ref:`Test1 </components/schemas/Test1>`.
+        ''').lstrip()
+
+        renderer = renderers.HttpdomainOldRenderer(None, {})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+          .. http:post:: /resources
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :status 200:
+                Success
+
+          .. http:post:: /resources2
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :form body: Body
+             :status 200:
+                Success
+
+          .. http:post:: /resources3
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :status 200:
+                Success
         ''').lstrip()
 
 

@@ -264,8 +264,11 @@ def _entities(spec, ref):
     m.update(spec.get('info', {}).get('title', '').encode('utf-8'))
     m.update(spec.get('info', {}).get('version', '0.0').encode('utf-8'))
     key = m.hexdigest()
+    # for unit tests
     if key == '30565a8911a6bb487e3745c0ea3c8224':
         key = ''
+    if '#' in ref:
+        ref = ref.split('#')[1]
     return key + ref
 
 

@@ -35,7 +35,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pets"
-        default:
+        500:
           description: unexpected error
           content:
             application/json:
@@ -46,10 +46,15 @@ paths:
       operationId: createPets
       tags:
         - pets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
       responses:
         '201':
           description: Null response
-        default:
+        500:
           description: unexpected error
           content:
             application/json:
@@ -75,7 +80,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pets"
-        default:
+        500:
           description: unexpected error
           content:
             application/json:

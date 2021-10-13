@@ -12,7 +12,7 @@ import copy
 
 import collections
 import collections.abc
-import hashlib
+import textwrap
 
 from datetime import datetime
 import itertools
@@ -20,6 +20,7 @@ import json
 import re
 from urllib import parse
 from http.client import responses as http_status_codes
+from sphinxcontrib.openapi.renderers._model import _process_one, _entities
 
 from sphinx.util import logging
 
@@ -333,6 +334,26 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         else:
             query_param_examples.append((param['name'], example))
 
+    def get_desc(desc, schema, indent):
+        if entities:
+            doc = next(_process_one(['R'], schema, False, entities, convert))
+            if desc:
+                if not desc[-1] == '.':
+                    desc = desc + '.'
+            if doc[1]:
+                if not doc[1].startswith("Object of") and not doc[1].startswith("Array of"):
+                    doc[1] = "Object of type " + doc[1]
+                if not doc[1][-1] == '.':
+                    doc[1] = doc[1] + '.'
+                desc += '\n' + doc[1]
+            if doc[2]:
+                if not doc[2][-1] == '.':
+                    doc[2] = doc[2] + '.'
+                desc += '\n' + doc[2]
+            desc = desc.rstrip()
+        desc = textwrap.indent(desc, '{indent}{indent}'.format(**locals())).lstrip()
+        return desc
+
     # print request content
     if render_request:
         request_content = properties.get('requestBody', {}).get('content', {})
@@ -348,23 +369,23 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 # yield indent + line
                 yield '{indent}{indent}{line}'.format(**locals())
                 # yield ''
-    elif entities:
+    else:
         desc = properties.get('requestBody', {}).get('description', '')
         request_content = properties.get('requestBody', {}).get('content', {})
         if request_content and 'application/json' in request_content:
             schema = request_content['application/json'].get('schema', {})
-            if '$entity_ref' in schema:
-                ref = schema['$entity_ref']
-                if entities:
-                    link = ref2link(entities, ref)
-                    yield '{indent}:form body: {desc}. See {link}'.format(**locals())
-                else:
-                    yield '{indent}:form body: {desc}.'.format(**locals())
+            if '$entity_ref' in schema or schema.get('type', 'object') == 'array':
+                desc = get_desc(desc, schema, indent)
+                if desc:
+                    yield '{indent}:form body: {desc}'.format(**locals())
             else:
                 for prop, v in schema.get('properties', {}).items():
                     ptype = v.get('type', '')
                     desc = v.get('description', '')
-                    yield '{indent}:jsonparam {ptype} {prop}: {desc}'.format(**locals())
+                    yield '{indent}:jsonparam {ptype} {prop}: {desc}'.format(**locals()).rstrip()
+        else:
+            if desc:
+                yield '{indent}:form body: {desc}.'.format(**locals())
 
     # print request header params
     reqheader_examples = {}
@@ -415,16 +436,17 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
     # print response status codes
     for status, response in responses.items():
         yield '{indent}:status {status}:'.format(**locals())
-        for line in convert(response['description']).splitlines():
-            yield '{indent}{indent}{line}'.format(**locals())
         if entities:
             content = response.get('content', {})
             if content and 'application/json' in content:
                 schema = content['application/json']['schema']
-                if '$entity_ref' in schema:
-                    ref = schema['$entity_ref']
-                    link = ref2link(entities, ref)
-                    yield '{indent}{indent}See {link}'.format(**locals())
+                desc = response.get('description', '')
+                desc = get_desc(desc, schema, indent)
+                if desc:
+                    yield '{indent}{indent}{desc}'.format(**locals())
+        else:
+            for line in convert(response['description']).splitlines():
+                yield '{indent}{indent}{line}'.format(**locals())
 
         # print response example
         if render_examples and not group_examples:
@@ -490,14 +512,6 @@ def _header(title):
     yield title
     yield '=' * len(title)
     yield ''
-
-
-def _entities(spec, ref):
-    m = hashlib.md5()
-    m.update(spec['info'].get('title', '').encode('utf-8'))
-    m.update(spec['info'].get('version', '0.0').encode('utf-8'))
-    key = m.hexdigest()
-    return key+ref.split('#')[1]
 
 
 def openapihttpdomain(spec, **options):
