@@ -129,7 +129,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
             C = _get_contraints(schema)
             D = _add_constraints(D, C)
             for x in _process_one(prefix, schema['items'], False, entities, convert):
-                yield (x[0], 'Array of ' + x[1], D + x[2], mandatory)
+                yield [x[0], 'Array of ' + x[1], D + x[2], mandatory]
     elif type == 'object':
         required = schema.get('required', [])
         for prop_name, prop in schema.get('properties', {}).items():
