@@ -52,20 +52,26 @@ def _get_contraints(obj):
     if 'writeOnly' in obj:
         c.append("write only")
     s = '; '.join(c)
-    if s:
-        s = "Constraints: " + s
-    if 'deprecated' in obj:
-        s += "\n\n**DEPRECATED**"
     return s
 
 
-def _add_constraints(D, C):
+def _add_constraints(obj, D, C):
     if C:
-        if D and D[-1] != '.':
-            D += '.'
+        if not 'Constraints' in D:
+            C = "Constraints: " + C
+            if D and D[-1] != '.':
+                D += '.'
+        else:
+            if C and D and D[-1] != ';':
+                D += ';'
         if D and C and C[0] != '\n':
             D += ' '
         D += C
+    else:
+        if D and D[-1] != '.':
+            D += '.'
+    if 'deprecated' in obj:
+        D += "\n\n**DEPRECATED**"
     return D
 
 
@@ -99,23 +105,28 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         # does not apply to first level types (prefix empty)
         T = 'Object of type ' + ref2link(entities, schema['$entity_ref'])
         D = _get_description(schema, convert)
+        C = _get_contraints(schema)
+        D = _add_constraints(schema, D, C)
         ret = ['.'.join(prefix), T, D, mandatory]
         yield ret
     elif type == 'array':
         ref = schema['items'].get('$entity_ref', None)
         type_items = schema['items'].get('type', None)
         if ref:
+            D = _get_description(schema, convert)
+            C = _get_contraints(schema)
+            D = _add_constraints(schema, D, C)
             yield [
                 '.'.join(prefix),
                 'Array of ' + ref2link(entities, ref),
-                _get_description(schema, convert),
+                D,
                 mandatory
             ]
         elif type_items == 'object':
             T = "Array"
             D = _get_description(schema, convert)
             C = _get_contraints(schema)
-            D = _add_constraints(D, C)
+            D = _add_constraints(schema, D, C)
             yield ['.'.join(prefix), T, D, mandatory]
             if prefix:
                 prefix[-1] += '[]'
@@ -127,9 +138,14 @@ def _process_one(prefix, schema, mandatory, entities, convert):
             # Support array of simple types (string, etc.)
             D = _get_description(schema, convert)
             C = _get_contraints(schema)
-            D = _add_constraints(D, C)
             for x in _process_one(prefix, schema['items'], False, entities, convert):
-                yield [x[0], 'Array of ' + x[1], D + x[2], mandatory]
+                # Add C to x[2] now and not before (to avoid double "Constraints:")
+                if D and x[2]:
+                    DD = D + ' ' + x[2]
+                else:
+                    DD = D + x[2]
+                DD = _add_constraints(schema, DD, C)
+                yield [x[0], 'Array of ' + x[1], DD, mandatory]
     elif type == 'object':
         required = schema.get('required', [])
         for prop_name, prop in schema.get('properties', {}).items():
@@ -163,7 +179,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         # One of the subtype, must be basic types or ref
         D = _get_description(schema, convert)
         C = _get_contraints(schema)
-        D = _add_constraints(D, C)
+        D = _add_constraints(schema, D, C)
         T = _get_multi_type(schema, entities)
         T = "One of " + ", ".join(T)
         yield ['.'.join(prefix), T, D, mandatory]
@@ -171,7 +187,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         # All of the subtype, must be basic types or ref
         D = _get_description(schema, convert)
         C = _get_contraints(schema)
-        D = _add_constraints(D, C)
+        D = _add_constraints(schema, D, C)
         T = _get_multi_type(schema, entities)
         T = "All of " + ", ".join(T)
         yield ['.'.join(prefix), T, D, mandatory]
@@ -179,7 +195,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         # Any of the subtype, must be basic types or ref
         D = _get_description(schema, convert)
         C = _get_contraints(schema)
-        D = _add_constraints(D, C)
+        D = _add_constraints(schema, D, C)
         T = _get_multi_type(schema, entities)
         T = "Any of " + ", ".join(T)
         yield ['.'.join(prefix), T, D, mandatory]
@@ -189,7 +205,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
             T += '/' + schema.get('format', '')
         D = _get_description(schema, convert)
         C = _get_contraints(schema)
-        D = _add_constraints(D, C)
+        D = _add_constraints(schema, D, C)
         yield ['.'.join(prefix), T, D, mandatory]
 
 

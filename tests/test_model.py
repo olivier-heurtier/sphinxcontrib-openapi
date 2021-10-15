@@ -176,7 +176,7 @@ class TestOpenApi3HttpDomain(object):
               - Required
             * - ``kind``
               - string
-              - Kind
+              - Kind.
               - Yes
         """)
 
@@ -206,7 +206,12 @@ class TestOpenApi3HttpDomain(object):
                 field4:
                   type: boolean
                   default: false
-
+                field5:
+                  type: array
+                  items:
+                    type: string
+                    maxLength: 255
+                  minItems: 1
         """))
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent("""
@@ -226,19 +231,23 @@ class TestOpenApi3HttpDomain(object):
               - Required
             * - ``field1``
               - integer/int32
-              - Signed 32 bits
+              - Signed 32 bits.
               -
             * - ``field2``
               - number/float
-              - Float
+              - Float.
               -
             * - ``field3``
               - string/byte
-              - base64 encoded characters
+              - base64 encoded characters.
               -
             * - ``field4``
               - boolean
               - Default: ``false``.
+              -
+            * - ``field5``
+              - Array of string
+              - Constraints: maxLength is 255; minItems is 1
               -
         """)
 
@@ -276,6 +285,7 @@ class TestOpenApi3HttpDomain(object):
                         type: array
                         items:
                           $ref: '#/components/schemas/Test1'
+                        minItems: 1
                       field4:
                         type: array
                         items:
@@ -334,7 +344,7 @@ class TestOpenApi3HttpDomain(object):
               - Yes
             * - ``table[].field3``
               - Array of :ref:`Test1 </components/schemas/Test1>`
-              -
+              - Constraints: minItems is 1
               -
             * - ``table[].field4``
               - Array of string
