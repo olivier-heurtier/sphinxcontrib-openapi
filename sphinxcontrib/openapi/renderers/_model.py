@@ -57,7 +57,7 @@ def _get_contraints(obj):
 
 def _add_constraints(obj, D, C):
     if C:
-        if not 'Constraints' in D:
+        if 'Constraints' not in D:
             C = "Constraints: " + C
             if D and D[-1] != '.':
                 D += '.'
