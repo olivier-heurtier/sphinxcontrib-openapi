@@ -305,35 +305,6 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         yield '{indent}**DEPRECATED**'.format(**locals())
         yield ''
 
-    # print request's path params
-    for param in filter(lambda p: p['in'] == 'path', parameters):
-        yield indent + ':param {type} {name}:'.format(
-            type=param['schema']['type'],
-            name=param['name'])
-
-        for line in convert(param.get('description', '')).splitlines():
-            yield '{indent}{indent}{line}'.format(**locals())
-
-    # print request's query params
-    for param in filter(lambda p: p['in'] == 'query', parameters):
-        yield indent + ':query {type} {name}:'.format(
-            type=param['schema']['type'],
-            name=param['name'])
-        for line in convert(param.get('description', '')).splitlines():
-            yield '{indent}{indent}{line}'.format(**locals())
-        if param.get('required', False):
-            yield '{indent}{indent}(Required)'.format(**locals())
-        example = _parse_schema(param['schema'], method)
-        example = param.get('example', example)
-        if param.get('explode', False) and isinstance(example, list):
-            for v in example:
-                query_param_examples.append((param['name'], v))
-        elif param.get('explode', False) and isinstance(example, dict):
-            for k, v in example.items():
-                query_param_examples.append((k, v))
-        else:
-            query_param_examples.append((param['name'], example))
-
     def get_desc(desc, schema, indent):
         if entities:
             doc = next(_process_one(['R'], schema, False, entities, convert))
@@ -353,6 +324,39 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             desc = desc.rstrip()
         desc = textwrap.indent(desc, '{indent}{indent}'.format(**locals())).lstrip()
         return desc
+
+    # print request's path params
+    for param in filter(lambda p: p['in'] == 'path', parameters):
+        yield indent + ':param {type} {name}:'.format(
+            type=param['schema']['type'],
+            name=param['name'])
+
+        desc = param.get('description', '')
+        desc = get_desc(desc, param['schema'], indent)
+        if desc:
+            yield '{indent}{indent}{desc}'.format(**locals())
+
+    # print request's query params
+    for param in filter(lambda p: p['in'] == 'query', parameters):
+        yield indent + ':query {type} {name}:'.format(
+            type=param['schema']['type'],
+            name=param['name'])
+        desc = param.get('description', '')
+        desc = get_desc(desc, param['schema'], indent)
+        if desc:
+            yield '{indent}{indent}{desc}'.format(**locals())
+        if param.get('required', False):
+            yield '{indent}{indent}(Required)'.format(**locals())
+        example = _parse_schema(param['schema'], method)
+        example = param.get('example', example)
+        if param.get('explode', False) and isinstance(example, list):
+            for v in example:
+                query_param_examples.append((param['name'], v))
+        elif param.get('explode', False) and isinstance(example, dict):
+            for k, v in example.items():
+                query_param_examples.append((k, v))
+        else:
+            query_param_examples.append((param['name'], example))
 
     # print request content
     if render_request:
@@ -391,8 +395,10 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
     reqheader_examples = {}
     for param in filter(lambda p: p['in'] == 'header', parameters):
         yield indent + ':reqheader {name}:'.format(**param)
-        for line in convert(param.get('description', '')).splitlines():
-            yield '{indent}{indent}{line}'.format(**locals())
+        desc = param.get('description', '')
+        desc = get_desc(desc, param['schema'], indent)
+        if desc:
+            yield '{indent}{indent}{desc}'.format(**locals())
         if param.get('required', False):
             yield '{indent}{indent}(Required)'.format(**locals())
         ex = param.get('example', param.get('schema', {}).get('example', None))
@@ -424,8 +430,10 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
     for status, response in responses.items():
         for headername, header in response.get('headers', {}).items():
             yield indent + ':resheader {name}:'.format(name=headername)
-            for line in convert(header['description']).splitlines():
-                yield '{indent}{indent}{line}'.format(**locals())
+            desc = header.get('description', '')
+            desc = get_desc(desc, header.get('schema', {}), indent)
+            if desc:
+                yield '{indent}{indent}{desc}'.format(**locals())
             ex = header.get('example', header.get('schema', {}).get('example', None))
             if ex is None:
                 # try examples

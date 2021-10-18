@@ -2100,6 +2100,86 @@ class TestOpenApi3HttpDomain(object):
                 Success
         ''').lstrip()
 
+    def test_adv_parameters(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'entities': True})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths:
+          /resources/{param0}:
+            get:
+              summary: Summary
+              description: test service
+              parameters:
+                - name: param0
+                  in: path
+                  description: query param
+                  schema:
+                    type: string
+                    maxLength: 10
+                - name: param1
+                  in: query
+                  description: first param
+                  required: true
+                  schema:
+                    type: string
+                    maxLength: 64
+                - name: param2
+                  in: header
+                  description: second param
+                  schema:
+                    type: string
+                    maxLength: 32
+                - name: param3
+                  in: query
+                  description: third param
+                  schema:
+                    type: array
+                    items:
+                      type: string
+                      maxLength: 64
+                    minItems: 1
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: RESPONSE
+        """))
+
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+          .. http:get:: /resources/{param0}
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :param string param0:
+                query param.
+                Object of type string.
+                Constraints: maxLength is 10.
+             :query string param1:
+                first param.
+                Object of type string.
+                Constraints: maxLength is 64.
+                (Required)
+             :query array param3:
+                third param.
+                Array of string.
+                Constraints: maxLength is 64; minItems is 1.
+             :reqheader param2:
+                second param.
+                Object of type string.
+                Constraints: maxLength is 32.
+             :status 200:
+                Success.
+                Object of type string.
+        ''').lstrip()
+
 
 class TestResolveRefs(object):
 
