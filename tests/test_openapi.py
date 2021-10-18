@@ -1030,7 +1030,7 @@ class TestOpenApi3HttpDomain(object):
                ~ some useful description ~
 
                :status 200:
-                  Tags
+                  Tags.
 
             pets
             ====
@@ -1043,7 +1043,7 @@ class TestOpenApi3HttpDomain(object):
                ~ some useful description ~
 
                :status 200:
-                  Pets
+                  Pets.
 
             .. http:get:: /pets/{name}
                :synopsis: Show Pet
@@ -1055,7 +1055,7 @@ class TestOpenApi3HttpDomain(object):
                :param string name:
                   Name of pet.
                :status 200:
-                  A Pet
+                  A Pet.
 
             default
             =======
@@ -1070,7 +1070,7 @@ class TestOpenApi3HttpDomain(object):
                **DEPRECATED**
 
                :status 200:
-                  Index
+                  Index.
         ''').lstrip()
 
     def test_required_parameters(self):
@@ -1532,10 +1532,10 @@ class TestOpenApi3HttpDomain(object):
                ~ some useful description ~
 
                :query array params:
-                  List with explode set to True
+                  List with explode set to True.
                   (Required)
                :query object values:
-                  Dict with explode set to True
+                  Dict with explode set to True.
                   (Required)
 
                **Example request:**
@@ -1546,7 +1546,7 @@ class TestOpenApi3HttpDomain(object):
                   Host: example.com
 
                :status 200:
-                  OK
+                  OK.
         ''').lstrip()
 
     def test_callback(self):
@@ -1646,9 +1646,9 @@ class TestOpenApi3HttpDomain(object):
                :param string kind:
                   Kind of resource to list.
                :query string callback:
-                  the callback address
+                  the callback address.
                :status 202:
-                  Something
+                  Something.
 
                .. admonition:: Callback: callback
 
@@ -1659,7 +1659,7 @@ class TestOpenApi3HttpDomain(object):
 
                      :jsonparam string status:
                      :status 200:
-                        Success
+                        Success.
 
         ''').lstrip()
 
@@ -1704,7 +1704,7 @@ class TestOpenApi3HttpDomain(object):
                   Host: example.com
 
                :status 200:
-                  Something
+                  Something.
 
                   **Example response:**
 
@@ -1769,7 +1769,7 @@ class TestOpenApi3HttpDomain(object):
                   Host: example.com
 
                :status 200:
-                  Something
+                  Something.
 
                   **Example response:**
 
@@ -1842,6 +1842,7 @@ class TestOpenApi3HttpDomain(object):
                   description: request header
                   schema:
                     type: string
+                    maxLength: 32
                   example: "MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5="
               requestBody:
                 content:
@@ -1876,7 +1877,8 @@ class TestOpenApi3HttpDomain(object):
                test service
 
                :reqheader Digest:
-                  request header
+                  request header.
+                  Constraints: maxLength is 32.
 
                **Example request:**
 
@@ -1890,9 +1892,9 @@ class TestOpenApi3HttpDomain(object):
                   REQUEST
 
                :resheader digest:
-                  response header
+                  response header.
                :status 200:
-                  Success
+                  Success.
 
                   **Example response:**
 
@@ -1923,11 +1925,12 @@ class TestOpenApi3HttpDomain(object):
                test service
 
                :reqheader Digest:
-                  request header
+                  request header.
+                  Constraints: maxLength is 32.
                :resheader digest:
-                  response header
+                  response header.
                :status 200:
-                  Success
+                  Success.
 
                **Example request:**
 
@@ -2076,7 +2079,7 @@ class TestOpenApi3HttpDomain(object):
              test service
 
              :status 200:
-                Success
+                Success.
 
           .. http:post:: /resources2
              :synopsis: Summary
@@ -2085,9 +2088,9 @@ class TestOpenApi3HttpDomain(object):
 
              test service
 
-             :form body: Body
+             :form body: Body.
              :status 200:
-                Success
+                Success.
 
           .. http:post:: /resources3
              :synopsis: Summary
@@ -2097,7 +2100,7 @@ class TestOpenApi3HttpDomain(object):
              test service
 
              :status 200:
-                Success
+                Success.
         ''').lstrip()
 
     def test_adv_parameters(self):
@@ -2306,7 +2309,7 @@ class TestResolveRefs(object):
                   {}
 
                :status 200:
-                  Something
+                  Something.
         ''').lstrip()
 
 

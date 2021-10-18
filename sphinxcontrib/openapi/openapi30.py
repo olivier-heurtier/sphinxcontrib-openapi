@@ -317,7 +317,17 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 if not doc[1][-1] == '.':
                     doc[1] = doc[1] + '.'
                 desc += '\n' + doc[1]
-            if doc[2]:
+            if doc[2] and doc[2] != 'Additional properties':
+                if not doc[2][-1] == '.':
+                    doc[2] = doc[2] + '.'
+                desc += '\n' + doc[2]
+            desc = desc.rstrip()
+        else:
+            doc = next(_process_one(['R'], schema, False, entities, convert))
+            if desc:
+                if not desc[-1] == '.':
+                    desc = desc + '.'
+            if doc[2] and doc[2] != 'Additional properties':
                 if not doc[2][-1] == '.':
                     doc[2] = doc[2] + '.'
                 desc += '\n' + doc[2]
@@ -453,7 +463,10 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 if desc:
                     yield '{indent}{indent}{desc}'.format(**locals())
         else:
-            for line in convert(response['description']).splitlines():
+            desc = response.get('description', '')
+            if desc and desc[-1] != '.':
+                desc += '.'
+            for line in convert(desc.splitlines()):
                 yield '{indent}{indent}{line}'.format(**locals())
 
         # print response example

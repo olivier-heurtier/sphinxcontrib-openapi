@@ -271,8 +271,11 @@ def ref2link(entities, ref):
     name = ref.split('/')[-1]
     if ref[0] == '#':
         ref = ref[1:]
-    ref = entities(ref)
-    return ':ref:`{name} <{ref}>`'.format(**locals())
+    if callable(entities):
+        ref = entities(ref)
+        return ':ref:`{name} <{ref}>`'.format(**locals())
+    else:
+        return '{name}'.format(**locals())
 
 
 def _entities(spec, ref):
