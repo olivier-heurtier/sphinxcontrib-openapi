@@ -2306,7 +2306,9 @@ class TestResolveRefs(object):
                   Host: example.com
                   Content-Type: application/json
 
-                  {}
+                  {
+                      "...": "..."
+                  }
 
                :status 200:
                   Something.

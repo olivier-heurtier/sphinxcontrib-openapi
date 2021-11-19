@@ -104,7 +104,9 @@ def _parse_schema(schema, method):
         return _parse_schema(schema['oneOf'][0], method)
 
     if 'enum' in schema:
-        # we only show the first one since we can't show everything
+        if 'example' in schema:
+            return schema['example']
+        # we show the first one
         return schema['enum'][0]
 
     schema_type = schema.get('type', 'object')
@@ -134,7 +136,11 @@ def _parse_schema(schema, method):
                     for k, v in schema.get('properties', {}).items():
                         if v.get('readOnly', False):
                             del example[k]
-                return collections.OrderedDict(example)
+                ret = collections.OrderedDict(example)
+                if schema.get('additionalProperties', False) and '...' not in example:
+                    # materialize in the example the fact that additional properties can be added
+                    ret['...'] = '...'
+                return ret
         if method and 'properties' in schema and \
                 all(v.get('readOnly', False)
                     for v in schema['properties'].values()):
@@ -146,8 +152,14 @@ def _parse_schema(schema, method):
             if result != _READONLY_PROPERTY:
                 results.append((name, result))
 
+        if schema.get('additionalProperties', False):
+            # materialize in the example the fact that additional properties can be added
+            results.append(("...", "..."))
+
         return collections.OrderedDict(results)
 
+    if 'example' in schema:
+        return schema['example']
     if (schema_type, schema.get('format')) in _TYPE_MAPPING:
         return _TYPE_MAPPING[(schema_type, schema.get('format'))]
 
@@ -305,7 +317,15 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         yield '{indent}**DEPRECATED**'.format(**locals())
         yield ''
 
-    def get_desc(desc, schema, indent):
+    if 'security' in properties:
+        for sec_schema in properties['security']:
+            sec_scope = ' or '.join([
+                '``{}``'.format(s) for sch in sec_schema.values() for s in sch
+            ])
+            yield '{indent}**Scope required**: {sec_scope}'.format(**locals())
+        yield ''
+
+    def get_desc(desc, schema, indent, deep=True):
         if entities:
             doc = next(_process_one(['R'], schema, False, entities, convert))
             if desc:
@@ -317,7 +337,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 if not doc[1][-1] == '.':
                     doc[1] = doc[1] + '.'
                 desc += '\n' + doc[1]
-            if doc[2] and doc[2] != 'Additional properties':
+            if deep and doc[2] and doc[2] != 'Additional properties':
                 if not doc[2][-1] == '.':
                     doc[2] = doc[2] + '.'
                 desc += '\n' + doc[2]
@@ -389,7 +409,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         if request_content and 'application/json' in request_content:
             schema = request_content['application/json'].get('schema', {})
             if '$entity_ref' in schema or schema.get('type', 'object') == 'array':
-                desc = get_desc(desc, schema, indent)
+                desc = get_desc(desc, schema, indent, deep=False)
                 if desc:
                     yield '{indent}:form body: {desc}'.format(**locals())
             else:
@@ -454,14 +474,13 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
     # print response status codes
     for status, response in responses.items():
         yield '{indent}:status {status}:'.format(**locals())
-        if entities:
-            content = response.get('content', {})
-            if content and 'application/json' in content:
-                schema = content['application/json']['schema']
-                desc = response.get('description', '')
-                desc = get_desc(desc, schema, indent)
-                if desc:
-                    yield '{indent}{indent}{desc}'.format(**locals())
+        content = response.get('content', {})
+        if entities and content and 'application/json' in content:
+            schema = content['application/json']['schema']
+            desc = response.get('description', '')
+            desc = get_desc(desc, schema, indent, deep=False)
+            if desc:
+                yield '{indent}{indent}{desc}'.format(**locals())
         else:
             desc = response.get('description', '')
             if desc and desc[-1] != '.':
