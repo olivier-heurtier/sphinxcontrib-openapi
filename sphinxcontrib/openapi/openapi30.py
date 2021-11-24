@@ -137,6 +137,7 @@ def _parse_schema(schema, method):
                         if v.get('readOnly', False):
                             del example[k]
                 ret = collections.OrderedDict(example)
+                # XXX should be True to be compliant with OpenAPI
                 if schema.get('additionalProperties', False) and '...' not in example:
                     # materialize in the example the fact that additional properties can be added
                     ret['...'] = '...'
@@ -152,6 +153,7 @@ def _parse_schema(schema, method):
             if result != _READONLY_PROPERTY:
                 results.append((name, result))
 
+        # XXX should be True to be compliant with OpenAPI
         if schema.get('additionalProperties', False):
             # materialize in the example the fact that additional properties can be added
             results.append(("...", "..."))
@@ -215,6 +217,10 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                     for k, v in content['schema'].get('properties', {}).items():
                         if v.get('readOnly', False):
                             del example[k]
+                # XXX should be True to be compliant with OpenAPI
+                if content['schema'].get('additionalProperties', False) and '...' not in example:
+                    # materialize in the example the fact that additional properties can be added
+                    example['...'] = '...'
 
         if examples is None:
             examples = {}

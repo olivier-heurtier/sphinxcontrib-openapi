@@ -1779,7 +1779,8 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "prop1": "Sample 1"
+                         "prop1": "Sample 1",
+                         "...": "..."
                      }
 
         ''').lstrip()
@@ -1824,6 +1825,96 @@ class TestOpenApi3HttpDomain(object):
 
                :status 201:
                   ok
+        ''').lstrip()
+
+    def test_simpletype_example(self):
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths:
+          /resources:
+            post:
+              summary: Summary
+              description: test service
+              requestBody:
+                description: present
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/MyRequest'
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/MyRequest'
+        components:
+          schemas:
+            MyRequest:
+              description: absent
+              type: object
+              properties:
+                a:
+                  $ref: '#/components/schemas/MySimpleType'
+                b:
+                  type: string
+                  example: B
+            MySimpleType:
+              type: string
+              enum: [A, B, C]
+              example: C
+        """))
+
+        renderer = renderers.HttpdomainOldRenderer(
+            None,
+            {
+                'examples': True,
+                'group_examples': True,
+                'entities': True
+            }
+        )
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+            .. http:post:: /resources
+               :synopsis: Summary
+
+               **Summary**
+
+               test service
+
+               :form body: present.
+                  Object of type :ref:`MyRequest </components/schemas/MyRequest>`.
+               :status 200:
+                  Success.
+                  Object of type :ref:`MyRequest </components/schemas/MyRequest>`.
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  POST /resources HTTP/1.1
+                  Host: example.com
+                  Content-Type: application/json
+
+                  {
+                      "a": "C",
+                      "b": "B"
+                  }
+
+
+               **Example response:**
+
+               .. sourcecode:: http
+
+                  HTTP/1.1 200 OK
+                  Content-Type: application/json
+
+                  {
+                      "a": "C",
+                      "b": "B"
+                  }
+
         ''').lstrip()
 
     def test_header_example(self):
