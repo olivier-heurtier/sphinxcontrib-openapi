@@ -595,7 +595,7 @@ class TestOpenApi3HttpDomain(object):
               - Type
               - Description
               - Required
-            * - ``...``
+            * - ``*``
               - One of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
               - Additional properties
               -
@@ -715,7 +715,7 @@ class TestOpenApi3HttpDomain(object):
               - Type
               - Description
               - Required
-            * - ``...``
+            * - ``*``
               - All of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
               - Additional properties
               -
@@ -835,7 +835,7 @@ class TestOpenApi3HttpDomain(object):
               - Type
               - Description
               - Required
-            * - ``...``
+            * - ``*``
               - Any of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
               - Additional properties
               -
@@ -898,6 +898,53 @@ class TestOpenApi3HttpDomain(object):
             * - ``field4``
               - string
               -
+              -
+        """)
+
+    def test_others_additional(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              type: object
+              required:
+                - field1
+              properties:
+                field1:
+                  type: string
+                  example: F1
+                others:
+                  type: object
+                  additionalProperties: true
+              additionalProperties: false
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Required
+            * - ``field1``
+              - string
+              -
+              - Yes
+            * - ``others.*``
+              -
+              - Additional properties
               -
         """)
 

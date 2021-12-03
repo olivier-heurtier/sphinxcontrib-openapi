@@ -174,7 +174,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
                         ", ".join(_get_multi_type(schema['additionalProperties'], entities))
                 else:
                     T = schema['additionalProperties'].get('type', 'object')
-            yield ['...', T, D, '']
+            yield ['.'.join(prefix+['*']), T, D, '']
     elif 'oneOf' in schema:
         # One of the subtype, must be basic types or ref
         D = _get_description(schema, convert)
