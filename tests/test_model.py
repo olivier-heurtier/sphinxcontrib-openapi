@@ -557,6 +557,7 @@ class TestOpenApi3HttpDomain(object):
                 - type: number
                 - type: boolean
                 - $ref: '#/components/schemas/Test4'
+                - $ref: '#/components/schemas/Test5'
             Test2:
               type: object
               properties:
@@ -578,6 +579,9 @@ class TestOpenApi3HttpDomain(object):
                 field4:
                   type: string
               additionalProperties: false
+            Test5:
+              type: string
+              enum: [A, B]
         """))
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent("""
@@ -596,7 +600,7 @@ class TestOpenApi3HttpDomain(object):
               - Description
               - Required
             * - ``*``
-              - One of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`
+              - One of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`, enumerate (``A``, ``B``)
               - Additional properties
               -
 
@@ -659,6 +663,7 @@ class TestOpenApi3HttpDomain(object):
               - string
               -
               -
+
         """)
 
     def test_allof(self):

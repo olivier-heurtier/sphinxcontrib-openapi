@@ -77,6 +77,7 @@ def _add_constraints(obj, D, C):
 
 def _get_multi_type(schema, entities):
     T = []
+    duplicate = set()
     if 'oneOf' in schema:
         k = 'oneOf'
     elif 'allOf' in schema:
@@ -88,7 +89,18 @@ def _get_multi_type(schema, entities):
         if '$entity_ref' in t and type == 'object':
             T.append(ref2link(entities, t['$entity_ref']))
         else:
-            T.append(type)
+            if type == 'string' and 'enum' in t:
+                type = 'enumerate'
+                vals = ', '.join(
+                    [
+                        '``{}``'.format(x) for x in t['enum']
+                    ]
+                )
+                if vals:
+                    type += ' (' + vals + ')'
+            if type not in duplicate:
+                T.append(type)
+                duplicate.add(type)
     return T
 
 
