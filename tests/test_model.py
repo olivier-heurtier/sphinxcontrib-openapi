@@ -600,7 +600,8 @@ class TestOpenApi3HttpDomain(object):
               - Description
               - Required
             * - ``*``
-              - One of string, integer, number, boolean, :ref:`Test4 </components/schemas/Test4>`, enumerate (``A``, ``B``)
+              - One of string, integer, number, boolean, """ +
+                                       """:ref:`Test4 </components/schemas/Test4>`, enumerate (``A``, ``B``)
               - Additional properties
               -
 
