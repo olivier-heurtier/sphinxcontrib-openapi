@@ -10,6 +10,9 @@ import jsonschema
 from jsonschema import validate
 from docutils.parsers.rst import directives
 
+from sphinx.locale import get_translation
+_ = get_translation('openapi')
+
 
 def _get_description(obj, convert):
     D = convert(obj.get('description', '')).strip()
@@ -25,32 +28,32 @@ def _get_description(obj, convert):
 def _get_contraints(obj):
     c = []
     if 'minItems' in obj:
-        c.append('minItems is ' + str(obj['minItems']))
+        c.append(_('minItems is {}').format(obj['minItems']))
     if 'maxItems' in obj:
-        c.append('maxItems is ' + str(obj['maxItems']))
+        c.append(_('maxItems is {}').format(obj['maxItems']))
     if 'minLength' in obj:
-        c.append('minLength is ' + str(obj['minLength']))
+        c.append(_('minLength is {}').format(obj['minLength']))
     if 'maxLength' in obj:
-        c.append('maxLength is ' + str(obj['maxLength']))
+        c.append(_('maxLength is {}').format(obj['maxLength']))
     if 'minimum' in obj:
-        c.append('minimum is ' + str(obj['minimum']))
+        c.append(_('minimum is {}').format(obj['minimum']))
     if 'maximum' in obj:
-        c.append('maximum is ' + str(obj['maximum']))
+        c.append(_('maximum is {}').format(obj['maximum']))
     if 'uniqueItems' in obj:
-        c.append("items must be unique")
+        c.append(_("items must be unique"))
     if "pattern" in obj:
-        c.append("pattern ``" + obj["pattern"] + "``")
+        c.append(_("pattern ``{}``").format(obj["pattern"]))
     if 'enum' in obj:
-        c.append('possible values are ' +
+        c.append(_('possible values are {}').format(
                  ', '.join(
                     [
                         '``{}``'.format(x) for x in obj['enum']
                     ]
-                 ))
+                 )))
     if 'readOnly' in obj:
-        c.append("read only")
+        c.append(_("read only"))
     if 'writeOnly' in obj:
-        c.append("write only")
+        c.append(_("write only"))
     s = '; '.join(c)
     return s
 
@@ -58,7 +61,7 @@ def _get_contraints(obj):
 def _add_constraints(obj, D, C):
     if C:
         if 'Constraints' not in D:
-            C = "Constraints: " + C
+            C = _("Constraints: {}").format(C)
             if D and D[-1] != '.':
                 D += '.'
         else:
@@ -71,7 +74,7 @@ def _add_constraints(obj, D, C):
         if D and D[-1] != '.':
             D += '.'
     if 'deprecated' in obj:
-        D += "\n\n**DEPRECATED**"
+        D += "\n\n**{}**".format(_("DEPRECATED"))
     return D
 
 
@@ -115,7 +118,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         type = schema.get('type', 'object')
     if '$entity_ref' in schema and type == 'object' and prefix:
         # does not apply to first level types (prefix empty)
-        T = 'Object of type ' + ref2link(entities, schema['$entity_ref'])
+        T = _('Object of type {}').format(ref2link(entities, schema['$entity_ref']))
         D = _get_description(schema, convert)
         C = _get_contraints(schema)
         D = _add_constraints(schema, D, C)
@@ -130,12 +133,12 @@ def _process_one(prefix, schema, mandatory, entities, convert):
             D = _add_constraints(schema, D, C)
             yield [
                 '.'.join(prefix),
-                'Array of ' + ref2link(entities, ref),
+                _('Array of {}').format(ref2link(entities, ref)),
                 D,
                 mandatory
             ]
         elif type_items == 'object':
-            T = "Array"
+            T = _("Array")
             D = _get_description(schema, convert)
             C = _get_contraints(schema)
             D = _add_constraints(schema, D, C)
@@ -157,7 +160,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
                 else:
                     DD = D + x[2]
                 DD = _add_constraints(schema, DD, C)
-                yield [x[0], 'Array of ' + x[1], DD, mandatory]
+                yield [x[0], _('Array of {}').format(x[1]), DD, mandatory]
     elif type == 'object':
         required = schema.get('required', [])
         for prop_name, prop in schema.get('properties', {}).items():
@@ -169,21 +172,21 @@ def _process_one(prefix, schema, mandatory, entities, convert):
                     convert):
                 yield x
         if 'additionalProperties' in schema:
-            D = 'Additional properties'
+            D = _('Additional properties')
             if schema['additionalProperties'] is True:
                 T = ''
             elif schema['additionalProperties'] is False:
                 return
             else:
                 if 'oneOf' in schema['additionalProperties']:
-                    T = "One of " + \
-                        ", ".join(_get_multi_type(schema['additionalProperties'], entities))
+                    T = _("One of {}").format(
+                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)) )
                 elif 'allOf' in schema['additionalProperties']:
-                    T = "All of " + \
-                        ", ".join(_get_multi_type(schema['additionalProperties'], entities))
+                    T = _("All of {}").format(
+                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)) )
                 elif 'anyOf' in schema['additionalProperties']:
-                    T = "Any of " + \
-                        ", ".join(_get_multi_type(schema['additionalProperties'], entities))
+                    T = _("Any of {}").format(
+                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)) )
                 else:
                     T = schema['additionalProperties'].get('type', 'object')
             yield ['.'.join(prefix+['*']), T, D, '']
@@ -193,7 +196,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         C = _get_contraints(schema)
         D = _add_constraints(schema, D, C)
         T = _get_multi_type(schema, entities)
-        T = "One of " + ", ".join(T)
+        T = _("One of {}").format(", ".join(T))
         yield ['.'.join(prefix), T, D, mandatory]
     elif 'allOf' in schema:
         # All of the subtype, must be basic types or ref
@@ -201,7 +204,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         C = _get_contraints(schema)
         D = _add_constraints(schema, D, C)
         T = _get_multi_type(schema, entities)
-        T = "All of " + ", ".join(T)
+        T = _("All of {}").format(", ".join(T))
         yield ['.'.join(prefix), T, D, mandatory]
     elif 'anyOf' in schema:
         # Any of the subtype, must be basic types or ref
@@ -209,7 +212,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
         C = _get_contraints(schema)
         D = _add_constraints(schema, D, C)
         T = _get_multi_type(schema, entities)
-        T = "Any of " + ", ".join(T)
+        T = _("Any of {}").format(", ".join(T))
         yield ['.'.join(prefix), T, D, mandatory]
     elif type in ['string', 'integer', 'number', 'boolean']:
         T = type
@@ -242,19 +245,19 @@ def _build(name, schema, entities, convert, options):
     yield '    :widths: 25 25 45 15'
     yield '    :class: longtable'
     yield ''
-    yield '    * - Attribute'
-    yield '      - Type'
-    yield '      - Description'
-    yield '      - Required'
+    yield '    * - ' + _('Attribute')
+    yield '      - ' + _('Type')
+    yield '      - ' + _('Description')
+    yield '      - ' + _('Required')
 
     for item in _process_one([], schema, False, entities, convert):
         if str(item[0]):
             yield '    * - ``' + str(item[0]) + '``'
         else:
-            yield '    * - N/A'
+            yield '    * - ' + _('N/A')
         yield '      - ' + textwrap.indent(str(item[1]), '        ').lstrip()
         yield '      - ' + textwrap.indent(str(item[2]), '        ').lstrip()
-        yield '      - ' + 'Yes' if item[3] else '      -'
+        yield '      - ' + _('Yes') if item[3] else '      -'
 
     if 'example' in schema or 'examples' in schema:
         N = 1
@@ -262,7 +265,7 @@ def _build(name, schema, entities, convert, options):
             if ex is None:
                 continue
             yield ''
-            yield 'Example #{}:'.format(N)
+            yield _('Example #{}:').format(N)
             N += 1
             # validate the example against this schema
             try:
@@ -274,7 +277,7 @@ def _build(name, schema, entities, convert, options):
                     yield '    ' + line
             except jsonschema.ValidationError:
                 yield ''
-                yield '**Invalid example**'
+                yield '**{}**'.format(_('Invalid example'))
 
 
 def ref2link(entities, ref):

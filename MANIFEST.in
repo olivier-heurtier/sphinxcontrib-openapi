@@ -3,6 +3,7 @@ include tox.ini
 
 recursive-include docs *
 recursive-include tests *
+recursive-include sphinxcontrib *.pot *.po *.mo
 
 prune docs/_build
 

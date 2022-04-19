@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 from pkg_resources import get_distribution, DistributionNotFound
 from sphinxcontrib.openapi import renderers, directive
 from sphinx.domains import Domain
@@ -55,6 +56,10 @@ class OpenAPIDomain(Domain):
 def setup(app):
     app.add_config_value("openapi_default_renderer", _DEFAULT_RENDERER_NAME, "html")
     app.add_config_value("openapi_renderers", {}, "html")
+
+    package_dir = os.path.abspath(os.path.dirname(__file__))
+    locale_dir = os.path.join(package_dir, 'locale')
+    app.add_message_catalog('openapi', locale_dir)
 
     from sphinxcontrib import httpdomain
 

@@ -23,6 +23,8 @@ from http.client import responses as http_status_codes
 from sphinxcontrib.openapi.renderers._model import _process_one, _entities
 
 from sphinx.util import logging
+from sphinx.locale import get_translation
+_ = get_translation('openapi')
 
 from sphinxcontrib.openapi import utils
 
@@ -134,7 +136,7 @@ def _parse_schema(schema, method):
                 # filters out readonly properties
                 if method and 'properties' in schema:
                     for k, v in schema.get('properties', {}).items():
-                        if v.get('readOnly', False):
+                        if v.get('readOnly', False) and k in example:
                             del example[k]
                 ret = collections.OrderedDict(example)
                 # XXX should be True to be compliant with OpenAPI
@@ -201,7 +203,7 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
     # Provide request samples for GET requests
     if method == 'GET':
         media_type_objects[''] = {
-            'examples': {'Example request': {'value': '\n'}}}
+            'examples': {_('Example request'): {'value': '\n'}}}
 
     for content_type, content in media_type_objects.items():
         examples = content.get('examples')
@@ -215,7 +217,7 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                 # filters out readonly properties
                 if method and 'properties' in content['schema']:
                     for k, v in content['schema'].get('properties', {}).items():
-                        if v.get('readOnly', False):
+                        if v.get('readOnly', False) and k in example:
                             del example[k]
                 # XXX should be True to be compliant with OpenAPI
                 if content['schema'].get('additionalProperties', False) and '...' not in example:
@@ -232,11 +234,11 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
                 example = _parse_schema(content['schema'], method=method)
 
             if method is None:
-                examples['Example response'] = {
+                examples[_('Example response')] = {
                     'value': example,
                 }
             else:
-                examples['Example request'] = {
+                examples[_('Example request')] = {
                     'value': example,
                 }
 
@@ -328,7 +330,8 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             sec_scope = ' or '.join([
                 '``{}``'.format(s) for sch in sec_schema.values() for s in sch
             ])
-            yield '{indent}**Scope required**: {sec_scope}'.format(**locals())
+            s = '{indent}**' + _('Scope required') + '**: {sec_scope}'
+            yield s.format(**locals())
         yield ''
 
     def get_desc(desc, schema, indent, deep=True):
@@ -338,12 +341,12 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 if not desc[-1] == '.':
                     desc = desc + '.'
             if doc[1]:
-                if not doc[1].startswith("Object of") and not doc[1].startswith("Array of"):
-                    doc[1] = "Object of type " + doc[1]
+                if not doc[1].startswith(_("Object of")) and not doc[1].startswith(_("Array of")):
+                    doc[1] = _("Object of type {}").format(doc[1])
                 if not doc[1][-1] == '.':
                     doc[1] = doc[1] + '.'
                 desc += '\n' + doc[1]
-            if deep and doc[2] and doc[2] != 'Additional properties':
+            if deep and doc[2] and doc[2] != _('Additional properties'):
                 if not doc[2][-1] == '.':
                     doc[2] = doc[2] + '.'
                 desc += '\n' + doc[2]
@@ -353,7 +356,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             if desc:
                 if not desc[-1] == '.':
                     desc = desc + '.'
-            if doc[2] and doc[2] != 'Additional properties':
+            if doc[2] and doc[2] != _('Additional properties'):
                 if not doc[2][-1] == '.':
                     doc[2] = doc[2] + '.'
                 desc += '\n' + doc[2]
@@ -382,7 +385,8 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         if desc:
             yield '{indent}{indent}{desc}'.format(**locals())
         if param.get('required', False):
-            yield '{indent}{indent}(Required)'.format(**locals())
+            yield '{indent}{indent}'.format(**locals()) + \
+                '({})'.format(_('Required'))
         example = _parse_schema(param['schema'], method)
         example = param.get('example', example)
         if param.get('explode', False) and isinstance(example, list):
@@ -401,7 +405,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             schema = request_content['application/json']['schema']
             req_properties = json.dumps(schema['properties'], indent=2,
                                         separators=(',', ':'))
-            yield '{indent}**Request body:**'.format(**locals())
+            yield '{indent}'.format(**locals()) + '**{}**'.format(_('Request body:'))
             yield ''
             yield '{indent}.. sourcecode:: json'.format(**locals())
             yield ''
@@ -475,7 +479,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 # try examples
                 ex = header.get('examples', header.get('schema', {}).get('examples', [None]))[0]
             if ex:
-                resheader_examples[param['name']] = ex
+                resheader_examples[headername] = ex
 
     # print response status codes
     for status, response in responses.items():
