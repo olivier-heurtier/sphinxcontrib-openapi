@@ -1928,7 +1928,7 @@ class TestOpenApi3HttpDomain(object):
               summary: Summary
               description: test service
               parameters:
-                - name: Digest
+                - name: HeaderRequest
                   in: header
                   description: request header
                   schema:
@@ -1951,7 +1951,7 @@ class TestOpenApi3HttpDomain(object):
                         type: string
                       example: RESPONSE
                   headers:
-                    digest:
+                    HeaderResponse:
                       description: response header
                       schema:
                         type: string
@@ -1967,7 +1967,7 @@ class TestOpenApi3HttpDomain(object):
 
                test service
 
-               :reqheader Digest:
+               :reqheader HeaderRequest:
                   request header.
                   Constraints: maxLength is 32.
 
@@ -1978,11 +1978,11 @@ class TestOpenApi3HttpDomain(object):
                   POST /resources HTTP/1.1
                   Host: example.com
                   Content-Type: application/json
-                  Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+                  HeaderRequest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
 
                   REQUEST
 
-               :resheader digest:
+               :resheader HeaderResponse:
                   response header.
                :status 200:
                   Success.
@@ -1993,7 +1993,7 @@ class TestOpenApi3HttpDomain(object):
 
                      HTTP/1.1 200 OK
                      Content-Type: application/json
-                     Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+                     HeaderResponse: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
 
                      RESPONSE
 
@@ -2015,10 +2015,10 @@ class TestOpenApi3HttpDomain(object):
 
                test service
 
-               :reqheader Digest:
+               :reqheader HeaderRequest:
                   request header.
                   Constraints: maxLength is 32.
-               :resheader digest:
+               :resheader HeaderResponse:
                   response header.
                :status 200:
                   Success.
@@ -2030,7 +2030,7 @@ class TestOpenApi3HttpDomain(object):
                   POST /resources HTTP/1.1
                   Host: example.com
                   Content-Type: application/json
-                  Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+                  HeaderRequest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
 
                   REQUEST
 
@@ -2041,7 +2041,7 @@ class TestOpenApi3HttpDomain(object):
 
                   HTTP/1.1 200 OK
                   Content-Type: application/json
-                  Digest: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
+                  HeaderResponse: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
 
                   RESPONSE
 
