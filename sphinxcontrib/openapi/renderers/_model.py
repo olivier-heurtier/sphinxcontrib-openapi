@@ -195,13 +195,13 @@ def _process_one(prefix, schema, mandatory, entities, convert):
             else:
                 if 'oneOf' in schema['additionalProperties']:
                     T = _("One of {}").format(
-                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)) )
+                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)))
                 elif 'allOf' in schema['additionalProperties']:
                     T = _("All of {}").format(
-                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)) )
+                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)))
                 elif 'anyOf' in schema['additionalProperties']:
                     T = _("Any of {}").format(
-                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)) )
+                        ", ".join(_get_multi_type(schema['additionalProperties'], entities)))
                 else:
                     T = schema['additionalProperties'].get('type', 'object')
             yield ['.'.join(prefix+['*']), T, D, '']

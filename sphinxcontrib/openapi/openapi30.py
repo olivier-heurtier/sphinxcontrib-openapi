@@ -24,9 +24,10 @@ from sphinxcontrib.openapi.renderers._model import _process_one, _entities
 
 from sphinx.util import logging
 from sphinx.locale import get_translation
-_ = get_translation('openapi')
 
 from sphinxcontrib.openapi import utils
+
+_ = get_translation('openapi')
 
 
 LOG = logging.getLogger(__name__)

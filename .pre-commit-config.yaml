@@ -30,6 +30,7 @@ repos:
             | dist
 
             # sphinxcontrib-openapi
+            | sphinxcontrib/openapi/locale/openapi.pot
             | sphinxcontrib/openapi/__init__.py
             | sphinxcontrib/openapi/__main__.py
             | sphinxcontrib/openapi/openapi20.py
