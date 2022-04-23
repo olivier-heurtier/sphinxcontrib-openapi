@@ -168,4 +168,3 @@ msgstr "Exemple n°{}"
 #: sphinxcontrib/openapi/renderers/_model.py:295
 msgid "Invalid example"
 msgstr "Exemple non valide"
-
