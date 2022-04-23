@@ -1063,3 +1063,56 @@ class TestOpenApi3HttpDomain(object):
               -
               -
         """)
+
+    def test_array_enum(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              type: object
+              properties:
+                field1:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Type1'
+                  minItems: 1
+                field2:
+                  type: array
+                  items:
+                    type: string
+                    enum: [A, B]
+                  minItems: 1
+            Type1:
+              type: string
+              enum: [C, D]
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Required
+            * - ``field1``
+              - Array of string
+              - Constraints: possible values are ``C``, ``D``; minItems is 1
+              -
+            * - ``field2``
+              - Array of string
+              - Constraints: possible values are ``A``, ``B``; minItems is 1
+              -
+
+        """)

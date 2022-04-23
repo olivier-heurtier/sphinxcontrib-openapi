@@ -60,7 +60,7 @@ def _get_contraints(obj):
 
 def _add_constraints(obj, D, C):
     if C:
-        if 'Constraints' not in D:
+        if _('Constraints') not in D:
             C = _("Constraints: {}").format(C)
             if D and D[-1] != '.':
                 D += '.'
@@ -131,12 +131,27 @@ def _process_one(prefix, schema, mandatory, entities, convert):
             D = _get_description(schema, convert)
             C = _get_contraints(schema)
             D = _add_constraints(schema, D, C)
-            yield [
-                '.'.join(prefix),
-                _('Array of {}').format(ref2link(entities, ref)),
-                D,
-                mandatory
-            ]
+            if type_items not in ['object', 'array']:
+                # Since only object and array are described on their own
+                # Add here the constraints of the referenced type
+                D = _get_description(schema['items'], convert)
+                C = _get_contraints(schema['items'])
+                D = _add_constraints(schema['items'], D, C)
+                C = _get_contraints(schema)
+                D = _add_constraints(schema, D, C)
+                yield [
+                    '.'.join(prefix),
+                    _('Array of {}').format(type_items),
+                    D,
+                    mandatory
+                ]
+            else:
+                yield [
+                    '.'.join(prefix),
+                    _('Array of {}').format(ref2link(entities, ref)),
+                    D,
+                    mandatory
+                ]
         elif type_items == 'object':
             T = _("Array")
             D = _get_description(schema, convert)
