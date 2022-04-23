@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-04-19 15:32+0200\n"
+"POT-Creation-Date: 2022-04-23 02:37+0200\n"
 "PO-Revision-Date: 2022-04-19 19:44+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr_FR\n"
@@ -18,13 +18,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: sphinxcontrib/openapi/openapi30.py:237
-msgid "Example response"
-msgstr "Exemple de réponse"
-
+#: sphinxcontrib/openapi/openapi30.py:206
 #: sphinxcontrib/openapi/openapi30.py:241
 msgid "Example request"
 msgstr "Exemple de requête"
+
+#: sphinxcontrib/openapi/openapi30.py:237
+msgid "Example response"
+msgstr "Exemple de réponse"
 
 #: sphinxcontrib/openapi/openapi30.py:333
 msgid "Scope required"
@@ -45,12 +46,12 @@ msgstr "Objet de type {}"
 
 #: sphinxcontrib/openapi/openapi30.py:349
 #: sphinxcontrib/openapi/openapi30.py:359
-#: sphinxcontrib/openapi/renderers/_model.py:175
+#: sphinxcontrib/openapi/renderers/_model.py:190
 msgid "Additional properties"
 msgstr "Propriétés additionnelles"
 
 #: sphinxcontrib/openapi/openapi30.py:389
-#: sphinxcontrib/openapi/renderers/_model.py:251
+#: sphinxcontrib/openapi/renderers/_model.py:266
 msgid "Required"
 msgstr "Requis"
 
@@ -102,6 +103,11 @@ msgstr "lecture seule"
 msgid "write only"
 msgstr "écriture seule"
 
+#: sphinxcontrib/openapi/renderers/_model.py:63
+#, fuzzy
+msgid "Constraints"
+msgstr "Contraintes"
+
 #: sphinxcontrib/openapi/renderers/_model.py:64
 msgid "Constraints: {}"
 msgstr "Contraintes: {}"
@@ -110,55 +116,56 @@ msgstr "Contraintes: {}"
 msgid "DEPRECATED"
 msgstr "OBSOLETE"
 
-#: sphinxcontrib/openapi/renderers/_model.py:136
-#: sphinxcontrib/openapi/renderers/_model.py:163
+#: sphinxcontrib/openapi/renderers/_model.py:144
+#: sphinxcontrib/openapi/renderers/_model.py:151
+#: sphinxcontrib/openapi/renderers/_model.py:178
 msgid "Array of {}"
 msgstr "Tableau de {}"
 
-#: sphinxcontrib/openapi/renderers/_model.py:141
+#: sphinxcontrib/openapi/renderers/_model.py:156
 msgid "Array"
 msgstr "Tableau"
 
-#: sphinxcontrib/openapi/renderers/_model.py:182
-#: sphinxcontrib/openapi/renderers/_model.py:199
+#: sphinxcontrib/openapi/renderers/_model.py:197
+#: sphinxcontrib/openapi/renderers/_model.py:214
 msgid "One of {}"
 msgstr "Un parmi {}"
 
-#: sphinxcontrib/openapi/renderers/_model.py:185
-#: sphinxcontrib/openapi/renderers/_model.py:207
+#: sphinxcontrib/openapi/renderers/_model.py:200
+#: sphinxcontrib/openapi/renderers/_model.py:222
 msgid "All of {}"
 msgstr "Tous parmi {}"
 
-#: sphinxcontrib/openapi/renderers/_model.py:188
-#: sphinxcontrib/openapi/renderers/_model.py:215
+#: sphinxcontrib/openapi/renderers/_model.py:203
+#: sphinxcontrib/openapi/renderers/_model.py:230
 msgid "Any of {}"
 msgstr "N'importe lequel parmi {}"
 
-#: sphinxcontrib/openapi/renderers/_model.py:248
+#: sphinxcontrib/openapi/renderers/_model.py:263
 msgid "Attribute"
 msgstr "Attribut"
 
-#: sphinxcontrib/openapi/renderers/_model.py:249
+#: sphinxcontrib/openapi/renderers/_model.py:264
 msgid "Type"
 msgstr "Type"
 
-#: sphinxcontrib/openapi/renderers/_model.py:250
+#: sphinxcontrib/openapi/renderers/_model.py:265
 msgid "Description"
 msgstr "Description"
 
-#: sphinxcontrib/openapi/renderers/_model.py:257
+#: sphinxcontrib/openapi/renderers/_model.py:272
 msgid "N/A"
 msgstr "S.O."
 
-#: sphinxcontrib/openapi/renderers/_model.py:260
+#: sphinxcontrib/openapi/renderers/_model.py:275
 msgid "Yes"
 msgstr "Oui"
 
-#: sphinxcontrib/openapi/renderers/_model.py:268
+#: sphinxcontrib/openapi/renderers/_model.py:283
 msgid "Example #{}:"
 msgstr "Exemple n°{}"
 
-#: sphinxcontrib/openapi/renderers/_model.py:280
+#: sphinxcontrib/openapi/renderers/_model.py:295
 msgid "Invalid example"
 msgstr "Exemple non valide"
 
