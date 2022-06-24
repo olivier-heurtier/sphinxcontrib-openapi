@@ -4,6 +4,11 @@ Pet Store
 
 Version :openapi:version:`petstore.yaml`
 
+Description:
+
+.. openapi:description:: petstore.yaml
+    :format: markdown
+
 .. sidebar:: Services
 
     .. openapi:toc:: petstore.yaml

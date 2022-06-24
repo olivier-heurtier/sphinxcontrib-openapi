@@ -46,6 +46,7 @@ class OpenAPIDomain(Domain):
         'httpdomain': directive.create_directive_from_renderer(renderers.HttpdomainRenderer),
         'model': directive.create_directive_from_renderer(renderers.ModelRenderer),
         'toc': directive.create_directive_from_renderer(renderers.TocRenderer),
+        'description': directive.create_directive_from_renderer(renderers.DescriptionRenderer),
     }
 
     roles = {

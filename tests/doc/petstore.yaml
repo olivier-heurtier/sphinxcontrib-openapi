@@ -1,6 +1,7 @@
 openapi: "3.0.0"
 info:
   version: 1.0.0
+  description: The famous _pet store_.
   title: Swagger Petstore
   license:
     name: MIT
