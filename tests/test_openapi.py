@@ -2319,7 +2319,7 @@ class TestResolveRefs(object):
         }
 
     def test_relative_ref_resolving_on_fs(self):
-        baseuri = 'file://%s' % os.path.abspath(__file__).replace('\\','/').replace('C:','')
+        baseuri = 'file://%s' % os.path.abspath(__file__).replace('\\', '/').replace('C:', '')
 
         data = {
             'bar': {

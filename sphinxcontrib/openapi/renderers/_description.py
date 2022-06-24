@@ -1,8 +1,6 @@
 
-import re
 from . import abc
 from .. import utils
-from docutils.parsers.rst import directives
 
 
 class DescriptionRenderer(abc.RestructuredTextRenderer):
