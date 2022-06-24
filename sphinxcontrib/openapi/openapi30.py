@@ -631,6 +631,8 @@ def openapihttpdomain(spec, **options):
 
         for endpoint in paths:
             for method, properties in spec['paths'][endpoint].items():
+                if options.get('methods') and method not in options.get('methods'):
+                    continue
                 key = properties.get('tags', [''])[0]
                 groups.setdefault(key, []).append(_httpresource(
                     endpoint,
@@ -652,6 +654,8 @@ def openapihttpdomain(spec, **options):
     else:
         for endpoint in paths:
             for method, properties in spec['paths'][endpoint].items():
+                if options.get('methods') and method not in options.get('methods'):
+                    continue
                 generators.append(_httpresource(
                     endpoint,
                     method,

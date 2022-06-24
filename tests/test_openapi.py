@@ -386,6 +386,7 @@ class TestOpenApi2HttpDomain(object):
 
     def test_method_option(self):
         spec = collections.defaultdict(collections.OrderedDict)
+        spec['openapi'] = '3.0'
         spec['paths']['/resource_a'] = {
             'get': {
                 'description': 'resource a',
@@ -423,7 +424,7 @@ class TestOpenApi2HttpDomain(object):
                resource a
 
                :status 201:
-                  ok
+                  ok.
         ''').lstrip()
 
     def test_root_parameters(self):
@@ -2318,7 +2319,7 @@ class TestResolveRefs(object):
         }
 
     def test_relative_ref_resolving_on_fs(self):
-        baseuri = 'file://%s' % os.path.abspath(__file__)
+        baseuri = 'file://%s' % os.path.abspath(__file__).replace('\\','/').replace('C:','')
 
         data = {
             'bar': {
