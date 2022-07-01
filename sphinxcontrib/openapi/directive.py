@@ -42,7 +42,7 @@ def create_directive_from_renderer(renderer_cls):
             # URI parameter is crucial for resolving relative references. So we
             # need to set this option properly as it's used later down the
             # stack.
-            self.options.setdefault('uri', 'file://%s' % abspath)
+            self.options.setdefault('uri', 'file:///%s' % abspath.replace('\\', '/'))
 
             # Add a given OpenAPI spec as a dependency of the referring
             # reStructuredText document, so the document is rebuilt each time
