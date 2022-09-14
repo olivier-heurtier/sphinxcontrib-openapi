@@ -484,6 +484,14 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
 
     # print response status codes
     for status, response in responses.items():
+        resheader_examples = {}
+        for headername, header in response.get('headers', {}).items():
+            ex = header.get('example', header.get('schema', {}).get('example', None))
+            if ex is None:
+                # try examples
+                ex = header.get('examples', header.get('schema', {}).get('examples', [None]))[0]
+            if ex:
+                resheader_examples[headername] = ex
         yield '{indent}:status {status}:'.format(**locals())
         content = response.get('content', {})
         if entities and content and 'application/json' in content:
@@ -527,6 +535,14 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
 
         # print response example
         for status, response in responses.items():
+            resheader_examples = {}
+            for headername, header in response.get('headers', {}).items():
+                ex = header.get('example', header.get('schema', {}).get('example', None))
+                if ex is None:
+                    # try examples
+                    ex = header.get('examples', header.get('schema', {}).get('examples', [None]))[0]
+                if ex:
+                    resheader_examples[headername] = ex
             for line in _example(
                     response.get('content', {}),
                     status=status,

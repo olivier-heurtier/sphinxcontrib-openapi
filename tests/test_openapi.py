@@ -1957,6 +1957,13 @@ class TestOpenApi3HttpDomain(object):
                       schema:
                         type: string
                       example: "MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5="
+                400:
+                  description: Error
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: ERROR
         """))
 
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
@@ -1998,6 +2005,18 @@ class TestOpenApi3HttpDomain(object):
 
                      RESPONSE
 
+               :status 400:
+                  Error.
+
+                  **Example response:**
+
+                  .. sourcecode:: http
+
+                     HTTP/1.1 400 Bad Request
+                     Content-Type: application/json
+
+                     ERROR
+
         ''').lstrip()
 
         renderer = renderers.HttpdomainOldRenderer(
@@ -2023,6 +2042,8 @@ class TestOpenApi3HttpDomain(object):
                   response header.
                :status 200:
                   Success.
+               :status 400:
+                  Error.
 
                **Example request:**
 
@@ -2045,6 +2066,16 @@ class TestOpenApi3HttpDomain(object):
                   HeaderResponse: MD5=thvDyvhfIqlvFe+A9MYgxAfm1q5=
 
                   RESPONSE
+
+
+               **Example response:**
+
+               .. sourcecode:: http
+
+                  HTTP/1.1 400 Bad Request
+                  Content-Type: application/json
+
+                  ERROR
 
         ''').lstrip()
 

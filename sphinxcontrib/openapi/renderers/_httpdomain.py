@@ -8,7 +8,7 @@ import json
 
 import deepmerge
 import docutils.parsers.rst.directives as directives
-import m2r
+import m2r2
 import requests
 import sphinx.util.logging as logging
 
@@ -183,7 +183,7 @@ _merge_mappings = deepmerge.Merger(
 class HttpdomainRenderer(abc.RestructuredTextRenderer):
     """Render OpenAPI v3 using `sphinxcontrib-httpdomain` extension."""
 
-    _markup_converters = {"commonmark": m2r.convert, "restructuredtext": lambda x: x}
+    _markup_converters = {"commonmark": m2r2.convert, "restructuredtext": lambda x: x}
     _response_examples_for = {"200", "201", "202", "2XX"}
     _request_parameters_order = ["header", "path", "query", "cookie"]
 
