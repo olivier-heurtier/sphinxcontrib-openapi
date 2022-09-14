@@ -540,7 +540,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 ex = header.get('example', header.get('schema', {}).get('example', None))
                 if ex is None:
                     # try examples
-                    ex = header.get('examples', header.get('schema', {}).get('examples', [None]))[0]
+                    ex = header.get('examples', header.get('schema', {}).get(
+                        'examples',
+                        [None]))[0]
                 if ex:
                     resheader_examples[headername] = ex
             for line in _example(
