@@ -2358,7 +2358,11 @@ class TestOpenApi3HttpDomain(object):
 
                  ''').lstrip()
 
-        renderer = renderers.HttpdomainOldRenderer(None, {'contextpath': True, 'examples': True, 'group': True})
+        renderer = renderers.HttpdomainOldRenderer(None, {
+                'contextpath': True,
+                'examples': True,
+                'group': True
+            })
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent('''
           default
@@ -2390,6 +2394,7 @@ class TestOpenApi3HttpDomain(object):
                    RESPONSE
 
                  ''').lstrip()
+
 
 class TestResolveRefs(object):
 

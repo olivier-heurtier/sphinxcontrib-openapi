@@ -13,6 +13,7 @@ import copy
 import collections
 import collections.abc
 import textwrap
+from urllib.parse import urlparse
 
 from datetime import datetime
 import itertools
@@ -342,7 +343,8 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 if not desc[-1] == '.':
                     desc = desc + '.'
             if doc[1]:
-                if not doc[1].startswith(str(_("Object of"))) and not doc[1].startswith(str(_("Array of"))):
+                if not doc[1].startswith(str(_("Object of"))) and \
+                   not doc[1].startswith(str(_("Array of"))):
                     doc[1] = _("Object of type {}").format(doc[1])
                 if not doc[1][-1] == '.':
                     doc[1] = doc[1] + '.'
@@ -582,7 +584,7 @@ def _header(title):
     yield '=' * len(title)
     yield ''
 
-from urllib.parse import urlparse
+
 def openapihttpdomain(spec, **options):
     generators = []
 
@@ -611,7 +613,7 @@ def openapihttpdomain(spec, **options):
         if 'servers' in spec:
             h = spec['servers'][0]['url']
             contextpath = urlparse(h).path
-            if contextpath and contextpath[-1]=='/':
+            if contextpath and contextpath[-1] == '/':
                 contextpath = contextpath[:-1]
 
     # Check against regular expressions to be included
