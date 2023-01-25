@@ -1919,7 +1919,7 @@ class TestOpenApi3HttpDomain(object):
         ''').lstrip()
 
     def test_header_example(self):
-        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True})
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True, "contextpath": True})
         spec = yaml.safe_load(textwrap.dedent("""
         ---
         openapi: 3.0.0
@@ -2084,6 +2084,8 @@ class TestOpenApi3HttpDomain(object):
         spec = yaml.safe_load(textwrap.dedent("""
         ---
         openapi: 3.0.0
+        servers:
+        - url: https://test.org/context
         paths:
           /resources:
             post:
@@ -2306,6 +2308,88 @@ class TestOpenApi3HttpDomain(object):
                 Object of type string.
         ''').lstrip()
 
+    def test_contextpath(self):
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        servers:
+        - url: https://test.org/context
+        paths:
+          /resources:
+            get:
+              summary: Summary
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: RESPONSE
+        """))
+
+        renderer = renderers.HttpdomainOldRenderer(None, {'contextpath': True, 'examples': True})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+          .. http:get:: /context/resources
+             :synopsis: Summary
+
+             **Summary**
+
+
+             **Example request:**
+
+             .. sourcecode:: http
+
+                GET /context/resources HTTP/1.1
+                Host: example.com
+
+             :status 200:
+                Success.
+
+                **Example response:**
+
+                .. sourcecode:: http
+
+                   HTTP/1.1 200 OK
+                   Content-Type: application/json
+
+                   RESPONSE
+
+                 ''').lstrip()
+
+        renderer = renderers.HttpdomainOldRenderer(None, {'contextpath': True, 'examples': True, 'group': True})
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+          default
+          =======
+
+          .. http:get:: /context/resources
+             :synopsis: Summary
+
+             **Summary**
+
+
+             **Example request:**
+
+             .. sourcecode:: http
+
+                GET /context/resources HTTP/1.1
+                Host: example.com
+
+             :status 200:
+                Success.
+
+                **Example response:**
+
+                .. sourcecode:: http
+
+                   HTTP/1.1 200 OK
+                   Content-Type: application/json
+
+                   RESPONSE
+
+                 ''').lstrip()
 
 class TestResolveRefs(object):
 

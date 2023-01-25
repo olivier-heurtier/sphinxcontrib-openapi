@@ -342,7 +342,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 if not desc[-1] == '.':
                     desc = desc + '.'
             if doc[1]:
-                if not doc[1].startswith(_("Object of")) and not doc[1].startswith(_("Array of")):
+                if not doc[1].startswith(str(_("Object of"))) and not doc[1].startswith(str(_("Array of"))):
                     doc[1] = _("Object of type {}").format(doc[1])
                 if not doc[1][-1] == '.':
                     doc[1] = doc[1] + '.'
@@ -582,7 +582,7 @@ def _header(title):
     yield '=' * len(title)
     yield ''
 
-
+from urllib.parse import urlparse
 def openapihttpdomain(spec, **options):
     generators = []
 
@@ -605,6 +605,14 @@ def openapihttpdomain(spec, **options):
                 )
             )
         paths = options['paths']
+
+    contextpath = ''
+    if 'contextpath' in options:
+        if 'servers' in spec:
+            h = spec['servers'][0]['url']
+            contextpath = urlparse(h).path
+            if contextpath and contextpath[-1]=='/':
+                contextpath = contextpath[:-1]
 
     # Check against regular expressions to be included
     if 'include' in options:
@@ -653,7 +661,7 @@ def openapihttpdomain(spec, **options):
                     continue
                 key = properties.get('tags', [''])[0]
                 groups.setdefault(key, []).append(_httpresource(
-                    endpoint,
+                    contextpath+endpoint,
                     method,
                     properties,
                     convert,
@@ -675,7 +683,7 @@ def openapihttpdomain(spec, **options):
                 if options.get('methods') and method not in options.get('methods'):
                     continue
                 generators.append(_httpresource(
-                    endpoint,
+                    contextpath+endpoint,
                     method,
                     properties,
                     convert,

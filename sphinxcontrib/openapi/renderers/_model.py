@@ -54,13 +54,14 @@ def _get_contraints(obj):
         c.append(_("read only"))
     if 'writeOnly' in obj:
         c.append(_("write only"))
+    c = [str(x) for x in c]
     s = '; '.join(c)
     return s
 
 
 def _add_constraints(obj, D, C):
     if C:
-        if _('Constraints') not in D:
+        if str(_('Constraints')) not in D:
             C = _("Constraints: {}").format(C)
             if D and D[-1] != '.':
                 D += '.'

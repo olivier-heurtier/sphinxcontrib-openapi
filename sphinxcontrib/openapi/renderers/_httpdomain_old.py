@@ -24,6 +24,7 @@ class HttpdomainOldRenderer(abc.RestructuredTextRenderer):
         # Render request/response examples when passed.
         "examples": directives.flag,  # render examples when passed
         # Render request/response examples in one block or inline with the response codes.
+        "contextpath": directives.flag,     # use the server path as prefix in service URL
         "group_examples": directives.flag,  # render examples in one block
         # Include links to entity description
         "entities": directives.flag,

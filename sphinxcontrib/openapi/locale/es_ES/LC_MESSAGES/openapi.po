@@ -29,7 +29,7 @@ msgstr "Ejemplo de respuesta"
 
 #: sphinxcontrib/openapi/openapi30.py:333
 msgid "Scope required"
-msgstr "Alcance requerido"
+msgstr "Permiso"
 
 #: sphinxcontrib/openapi/openapi30.py:344
 msgid "Object of"
