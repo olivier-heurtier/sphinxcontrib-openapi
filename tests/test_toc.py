@@ -1,5 +1,6 @@
 import textwrap
 import collections
+import yaml
 
 from sphinxcontrib.openapi import renderers
 
@@ -67,3 +68,36 @@ class TestOpenApi3HttpDomain(object):
             - `get /resource_a <#get--resource_a>`_
             - `UpdateResourceB <#post--resource_b>`_
         """)
+
+    def test_contextpath(self):
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        servers:
+        - url: https://test.org/context
+        paths:
+          /resources:
+            get:
+              summary: Summary
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        type: string
+                      example: RESPONSE
+        """))
+
+        renderer = renderers.TocRenderer(None, {"contextpath": True})
+
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+
+        assert text == textwrap.dedent("""
+        .. hlist::
+            :columns: 2
+
+            - `get /resources <#get--context-resources>`_
+        """)
+
+
