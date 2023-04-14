@@ -2395,6 +2395,51 @@ class TestOpenApi3HttpDomain(object):
 
                  ''').lstrip()
 
+    def test_bool_param_in_query(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths:
+          /resources:
+            get:
+              summary: Summary
+              description: test service
+              parameters:
+                - name: myparam
+                  in: query
+                  description: test param
+                  schema:
+                    type: boolean
+                    default: false
+              responses:
+                200:
+                  description: Success
+        """))
+
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+            .. http:get:: /resources
+               :synopsis: Summary
+
+               **Summary**
+
+               test service
+
+               :query boolean myparam:
+                  test param.
+                  Default: ``false``.
+
+               **Example request:**
+
+               .. sourcecode:: http
+
+                  GET /resources?myparam=false HTTP/1.1
+                  Host: example.com
+
+               :status 200:
+                  Success.
+        ''').lstrip()
 
 class TestResolveRefs(object):
 

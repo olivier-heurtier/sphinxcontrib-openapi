@@ -110,6 +110,8 @@ def _parse_schema(schema, method):
     if 'enum' in schema:
         if 'example' in schema:
             return schema['example']
+        if 'default' in schema:
+            return schema['default']
         # we show the first one
         return schema['enum'][0]
 
@@ -166,6 +168,8 @@ def _parse_schema(schema, method):
 
     if 'example' in schema:
         return schema['example']
+    if 'default' in schema:
+        return schema['default']
     if (schema_type, schema.get('format')) in _TYPE_MAPPING:
         return _TYPE_MAPPING[(schema_type, schema.get('format'))]
 
@@ -394,12 +398,19 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         example = param.get('example', example)
         if param.get('explode', False) and isinstance(example, list):
             for v in example:
+                if type(v) is type(True):
+                    v = {True:'true', False: 'false'}[v]
                 query_param_examples.append((param['name'], v))
         elif param.get('explode', False) and isinstance(example, dict):
             for k, v in example.items():
+                if type(v) is type(True):
+                    v = {True:'true', False: 'false'}[v]
                 query_param_examples.append((k, v))
         else:
-            query_param_examples.append((param['name'], example))
+            v = example
+            if type(v) is type(True):
+                v = {True:'true', False: 'false'}[v]
+            query_param_examples.append((param['name'], v))
 
     # print request content
     if render_request:
