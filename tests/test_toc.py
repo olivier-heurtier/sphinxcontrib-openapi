@@ -99,5 +99,3 @@ class TestOpenApi3HttpDomain(object):
 
             - `get /resources <#get--context-resources>`_
         """)
-
-

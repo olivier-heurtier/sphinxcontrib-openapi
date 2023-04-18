@@ -2441,6 +2441,7 @@ class TestOpenApi3HttpDomain(object):
                   Success.
         ''').lstrip()
 
+
 class TestResolveRefs(object):
 
     def test_ref_resolving(self):

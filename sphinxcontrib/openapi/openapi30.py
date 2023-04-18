@@ -398,18 +398,18 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         example = param.get('example', example)
         if param.get('explode', False) and isinstance(example, list):
             for v in example:
-                if type(v) is type(True):
-                    v = {True:'true', False: 'false'}[v]
+                if isinstance(v, bool):
+                    v = {True: 'true', False: 'false'}[v]
                 query_param_examples.append((param['name'], v))
         elif param.get('explode', False) and isinstance(example, dict):
             for k, v in example.items():
-                if type(v) is type(True):
-                    v = {True:'true', False: 'false'}[v]
+                if isinstance(v, bool):
+                    v = {True: 'true', False: 'false'}[v]
                 query_param_examples.append((k, v))
         else:
             v = example
-            if type(v) is type(True):
-                v = {True:'true', False: 'false'}[v]
+            if isinstance(v, bool):
+                v = {True: 'true', False: 'false'}[v]
             query_param_examples.append((param['name'], v))
 
     # print request content
