@@ -115,6 +115,13 @@ def normalize_spec(spec, **options):
             method['parameters'].extend(parameters)
 
 
+def _conv_md(s):
+    try:
+        return convert_markdown(s)
+    except Exception:
+        return s
+
+
 def get_text_converter(options):
     """Decide on a text converter for prose."""
     if 'format' in options:
@@ -124,7 +131,7 @@ def get_text_converter(options):
                     "Markdown conversion isn't available, "
                     "install the [markdown] extra."
                 )
-            return convert_markdown
+            return _conv_md
 
     # No conversion needed.
     return lambda s: s

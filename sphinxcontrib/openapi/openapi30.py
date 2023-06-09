@@ -323,7 +323,7 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         yield ''
 
     if 'description' in properties:
-        for line in convert(properties['description']).splitlines():
+        for line in convert(properties['description']).strip().splitlines():
             yield '{indent}{line}'.format(**locals())
         yield ''
 
@@ -378,6 +378,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             name=param['name'])
 
         desc = param.get('description', '')
+        if desc:
+            # in case the description uses markdown format
+            desc = convert(desc).strip()
         desc = get_desc(desc, param['schema'], indent)
         if desc:
             yield '{indent}{indent}{desc}'.format(**locals())
@@ -388,6 +391,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
             type=param['schema']['type'],
             name=param['name'])
         desc = param.get('description', '')
+        if desc:
+            # in case the description uses markdown format
+            desc = convert(desc).strip()
         desc = get_desc(desc, param['schema'], indent)
         if desc:
             yield '{indent}{indent}{desc}'.format(**locals())
@@ -429,6 +435,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 # yield ''
     else:
         desc = properties.get('requestBody', {}).get('description', '')
+        if desc:
+            # in case the description uses markdown format
+            desc = convert(desc).strip()
         request_content = properties.get('requestBody', {}).get('content', {})
         if request_content and 'application/json' in request_content:
             schema = request_content['application/json'].get('schema', {})
@@ -440,6 +449,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 for prop, v in schema.get('properties', {}).items():
                     ptype = v.get('type', '')
                     desc = v.get('description', '')
+                    if desc:
+                        # in case the description uses markdown format
+                        desc = convert(desc).strip()
                     yield '{indent}:jsonparam {ptype} {prop}: {desc}'.format(**locals()).rstrip()
         else:
             if desc:
@@ -450,6 +462,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
     for param in filter(lambda p: p['in'] == 'header', parameters):
         yield indent + ':reqheader {name}:'.format(**param)
         desc = param.get('description', '')
+        if desc:
+            # in case the description uses markdown format
+            desc = convert(desc).strip()
         desc = get_desc(desc, param['schema'], indent)
         if desc:
             yield '{indent}{indent}{desc}'.format(**locals())
@@ -485,6 +500,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         for headername, header in response.get('headers', {}).items():
             yield indent + ':resheader {name}:'.format(name=headername)
             desc = header.get('description', '')
+            if desc:
+                # in case the description uses markdown format
+                desc = convert(desc).strip()
             desc = get_desc(desc, header.get('schema', {}), indent)
             if desc:
                 yield '{indent}{indent}{desc}'.format(**locals())
@@ -510,11 +528,17 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         if entities and content and 'application/json' in content:
             schema = content['application/json']['schema']
             desc = response.get('description', '')
+            if desc:
+                # in case the description uses markdown format
+                desc = convert(desc).strip()
             desc = get_desc(desc, schema, indent, deep=False)
             if desc:
                 yield '{indent}{indent}{desc}'.format(**locals())
         else:
             desc = response.get('description', '')
+            if desc:
+                # in case the description uses markdown format
+                desc = convert(desc).strip()
             if desc and desc[-1] != '.':
                 desc += '.'
             for line in convert(desc.splitlines()):

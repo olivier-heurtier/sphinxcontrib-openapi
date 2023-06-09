@@ -2441,6 +2441,59 @@ class TestOpenApi3HttpDomain(object):
                   Success.
         ''').lstrip()
 
+    def test_markdown(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'format': 'markdown', 'examples': True})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths:
+          /resources/{opt}:
+            post:
+              summary: Summary
+              description: test service in __bold__
+              parameters:
+                - name: opt
+                  in: path
+                  description: test param in _italic_
+                  schema:
+                    type: string
+                - name: myparam
+                  in: query
+                  description: test param in _italic_
+                  schema:
+                    type: boolean
+                    default: false
+                - name: myheader
+                  in: header
+                  description: test param in _italic_
+                  schema:
+                    type: boolean
+                    default: false
+              responses:
+                200:
+                  description: Success
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+            .. http:post:: /resources/{opt}
+               :synopsis: Summary
+
+               **Summary**
+
+               test service in **bold**
+
+               :param string opt:
+                  test param in *italic*.
+               :query boolean myparam:
+                  test param in *italic*.
+                  Default: ``false``.
+               :reqheader myheader:
+                  test param in *italic*.
+                  Default: ``false``.
+               :status 200:
+                  Success.
+        ''').lstrip()
+
 
 class TestResolveRefs(object):
 
