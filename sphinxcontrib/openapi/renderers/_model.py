@@ -15,11 +15,15 @@ _ = get_translation('openapi')
 
 
 def _get_description(obj, convert):
-    D = convert(obj.get('description', '')).strip()
+    d = obj.get('description', '')
+    D = convert(d).strip()
+#    if d.strip()!=D:
+    if '\n' in D:
+        D += '\n\n'
     if 'default' in obj:
-        if D and D[-1] != '.':
+        if D and D.splitlines()[-1] and D[-1] != '.':
             D += '.'
-        if D:
+        if D and D.splitlines()[-1]:
             D += ' '
         D += 'Default: ``' + json.dumps(obj['default']) + "``."
     return D
@@ -63,16 +67,16 @@ def _add_constraints(obj, D, C):
     if C:
         if str(_('Constraints')) not in D:
             C = _("Constraints: {}").format(C)
-            if D and D[-1] != '.':
+            if D and D.splitlines()[-1] and D[-1] != '.':
                 D += '.'
         else:
-            if C and D and D[-1] != ';':
+            if C and D and D.splitlines()[-1] and D[-1] != ';':
                 D += ';'
-        if D and C and C[0] != '\n':
+        if D and D.splitlines()[-1] and C and C[0] != '\n':
             D += ' '
         D += C
     else:
-        if D and D[-1] != '.':
+        if D and D.splitlines()[-1] and D[-1] != '.':
             D += '.'
     if 'deprecated' in obj:
         D += "\n\n**{}**".format(_("DEPRECATED"))

@@ -394,6 +394,113 @@ class TestOpenApi3HttpDomain(object):
               -
         """)
 
+    def test_nomarkdown(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              description: This is a **bold** description
+              type: object
+              properties:
+                field1:
+                  type: string
+                  description: |
+                    This is an enumerate list:
+
+                    - A: value A
+                    - B: value B
+                    - C: value C
+                  enum: [A, B, C]
+                  example: A
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        This is a **bold** description
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Required
+            * - ``field1``
+              - string
+              - This is an enumerate list:
+
+                - A: value A
+                - B: value B
+                - C: value C
+
+                Constraints: possible values are ``A``, ``B``, ``C``
+              -
+        """)
+
+    def test_markdown2(self):
+        renderer = renderers.ModelRenderer(None, {'format': 'markdown'})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              description: This is a __bold__ description
+              type: object
+              properties:
+                field1:
+                  type: string
+                  description: |
+                    This is an enumerate list:
+                    - A: value A
+                    - B: value B
+                    - C: value C
+
+                  default: A
+                  enum: [A, B, C]
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+
+        This is a **bold** description
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Required
+            * - ``field1``
+              - string
+              - This is an enumerate list:
+
+
+                * A: value A
+                * B: value B
+                * C: value C
+
+                Default: ``"A"``. Constraints: possible values are ``A``, ``B``, ``C``
+              -
+        """)
+
     def test_example(self):
         renderer = renderers.ModelRenderer(None, {})
         spec = yaml.safe_load(textwrap.dedent("""
