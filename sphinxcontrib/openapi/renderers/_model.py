@@ -403,10 +403,10 @@ class ModelRenderer(abc.RestructuredTextRenderer):
         for name in entities:
             schema = schemas[name]
             for line in _build(name, schema, __entities, convert, self._options):
-                l = line.rstrip()
-                if '\n' in l:
-                    for line2 in l.splitlines():
-                        yield line2
+                line_stripped = line.rstrip()
+                if '\n' in line_stripped:
+                    for line_splitted in line_stripped.splitlines():
+                        yield line_splitted
                 else:
-                    yield l
+                    yield line_stripped
             yield ''
