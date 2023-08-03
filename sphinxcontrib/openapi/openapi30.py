@@ -2,7 +2,7 @@
     sphinxcontrib.openapi.openapi30
     -------------------------------
 
-    The OpenAPI 3.0.0 spec renderer. Based on ``sphinxcontrib-httpdomain``.
+    The OpenAPI 3.0 spec renderer. Based on ``sphinxcontrib-httpdomain``.
 
     :copyright: (c) 2016, Ihor Kalnytskyi.
     :license: BSD, see LICENSE for details.
@@ -33,7 +33,11 @@ _ = get_translation('openapi')
 
 LOG = logging.getLogger(__name__)
 
-# https://github.com/OAI/OpenAPI-Specification/blob/3.0.2/versions/3.0.0.md#data-types
+# Based on the spec:
+#
+# https://github.com/OAI/OpenAPI-Specification/blob/3.1.0/versions/3.0.0.md#data-types
+#
+# Note that array and object are excluded since these are handled separately
 _TYPE_MAPPING = {
     ('integer', 'int32'): 1,  # integer
     ('integer', 'int64'): 1,  # long
@@ -541,8 +545,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 desc = convert(desc).strip()
             if desc and desc[-1] != '.':
                 desc += '.'
-            for line in convert(desc.splitlines()):
-                yield '{indent}{indent}{line}'.format(**locals())
+            if desc:
+                for line in desc.splitlines():
+                    yield '{indent}{indent}{line}'.format(**locals())
 
         # print response example
         if render_examples and not group_examples:

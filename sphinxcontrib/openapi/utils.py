@@ -16,10 +16,7 @@ import collections.abc
 from contextlib import closing
 import jsonschema
 import yaml
-try:
-    from m2r2 import convert as convert_markdown
-except ImportError:
-    convert_markdown = None
+import sphinx_mdinclude
 
 from urllib.parse import urlsplit
 from urllib.request import urlopen
@@ -76,22 +73,22 @@ def _resolve_refs(uri, spec):
 
     resolver = OpenApiRefResolver(uri, spec)
 
-    def _do_resolve(node):
+    def _do_resolve(node, seen=[]):
         if isinstance(node, collections.abc.Mapping) and '$ref' in node:
             ref = node['$ref']
-            with resolver.resolving(node['$ref']) as resolved:
-                ret = _do_resolve(resolved)  # might have recursive references
-            # Restore the $ref in case we want to
-            # separate the entities in the document
-            if isinstance(ret, collections.abc.Mapping):
-                ret['$entity_ref'] = ref
-            return ret
+            with resolver.resolving(ref) as resolved:
+                if ref in seen:
+                    return {type: 'object'}  # return a distinct object for recursive data type
+                ret = _do_resolve(resolved, seen + [ref])  # might have other references
+                if isinstance(ret, collections.abc.Mapping):
+                    ret['$entity_ref'] = ref
+                return ret
         elif isinstance(node, collections.abc.Mapping):
             for k, v in node.items():
-                node[k] = _do_resolve(v)
+                node[k] = _do_resolve(v, seen)
         elif isinstance(node, (list, tuple)):
             for i in range(len(node)):
-                node[i] = _do_resolve(node[i])
+                node[i] = _do_resolve(node[i], seen)
         return node
 
     return _do_resolve(spec)
@@ -108,7 +105,7 @@ def normalize_spec(spec, **options):
     # In order to do not place if-s around the code to handle special
     # cases, let's normalize the spec and push common parameters inside
     # endpoints definitions.
-    for endpoint in spec['paths'].values():
+    for endpoint in spec.get('paths', {}).values():
         parameters = endpoint.pop('parameters', [])
         for method in endpoint.values():
             method.setdefault('parameters', [])
@@ -126,12 +123,7 @@ def get_text_converter(options):
     """Decide on a text converter for prose."""
     if 'format' in options:
         if options['format'] == 'markdown':
-            if convert_markdown is None:
-                raise ValueError(
-                    "Markdown conversion isn't available, "
-                    "install the [markdown] extra."
-                )
-            return _conv_md
+            return sphinx_mdinclude.convert
 
     # No conversion needed.
     return lambda s: s
