@@ -111,6 +111,7 @@ def normalize_spec(spec, **options):
             method.setdefault('parameters', [])
             method['parameters'].extend(parameters)
 
+
 def get_text_converter(options):
     """Decide on a text converter for prose."""
     if 'format' in options:
