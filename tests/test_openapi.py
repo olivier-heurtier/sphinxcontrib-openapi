@@ -1200,10 +1200,10 @@ class TestOpenApi3HttpDomain(object):
                             'content': {
                                 'application/json':  {
                                     'schema': {
-                                            'type': 'array',
-                                            'items': {
-                                                '$ref': '#/components/schemas/Resource',  # noqa
-                                            },
+                                        'type': 'array',
+                                        'items': {
+                                            '$ref': '#/components/schemas/Resource',  # noqa
+                                        },
                                     },
                                 }
                             }
@@ -2359,10 +2359,10 @@ class TestOpenApi3HttpDomain(object):
                  ''').lstrip()
 
         renderer = renderers.HttpdomainOldRenderer(None, {
-                'contextpath': True,
-                'examples': True,
-                'group': True
-            })
+            'contextpath': True,
+            'examples': True,
+            'group': True
+        })
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent('''
           default
