@@ -50,9 +50,9 @@ def _get_contraints(obj):
     if 'enum' in obj:
         c.append(_('possible values are {}').format(
                  ', '.join(
-                    [
-                        '``{}``'.format(x) for x in obj['enum']
-                    ]
+                     [
+                         '``{}``'.format(x) for x in obj['enum']
+                     ]
                  )))
     if 'readOnly' in obj:
         c.append(_("read only"))
