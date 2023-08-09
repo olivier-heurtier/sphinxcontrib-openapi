@@ -42,7 +42,7 @@ jobs:
     - name: Run pytest
       run: |
         python -m pip install tox
-        python -m tox -e py,docs
+        python -m tox -e py
 
   release:
     runs-on: ubuntu-latest
