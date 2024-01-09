@@ -745,7 +745,7 @@ class TestOpenApi3HttpDomain(object):
 
                .. sourcecode:: http
 
-                  GET /resources/{kind}?limit=1&offset=1 HTTP/1.1
+                  GET /resources/string?limit=1&offset=1 HTTP/1.1
                   Host: example.com
                   Content-Type: application/json
 
@@ -756,7 +756,7 @@ class TestOpenApi3HttpDomain(object):
 
                .. sourcecode:: http
 
-                  GET /resources/{kind}?limit=1&offset=1 HTTP/1.1
+                  GET /resources/string?limit=1&offset=1 HTTP/1.1
                   Host: example.com
 
 
@@ -1157,12 +1157,6 @@ class TestOpenApi3HttpDomain(object):
                         'description': '~ some useful description ~',
                         'parameters': [
                             {
-                                'name': 'kind',
-                                'in': 'path',
-                                'schema': {'type': 'string'},
-                                'description': 'Kind of resource to list.',
-                            },
-                            {
                                 'name': 'limit',
                                 'in': 'query',
                                 'required': True,
@@ -1232,6 +1226,7 @@ class TestOpenApi3HttpDomain(object):
                                 'in': 'path',
                                 'schema': {'type': 'string'},
                                 'description': 'Kind of resource to list.',
+                                'example': 'KIND01'
                             },
                         ],
                         'responses': {
@@ -1303,7 +1298,7 @@ class TestOpenApi3HttpDomain(object):
                             }),
                         ]),
                         'example': {
-                            'kind': 'KIND',
+                            'kind': 'KIND01',
                             'description': 'DESC',
                             'data': 'ABCD',
                         }
@@ -1320,8 +1315,6 @@ class TestOpenApi3HttpDomain(object):
 
                ~ some useful description ~
 
-               :param string kind:
-                  Kind of resource to list.
                :query integer limit:
                   Show up to `limit` entries.
                   (Required)
@@ -1347,7 +1340,7 @@ class TestOpenApi3HttpDomain(object):
 
                      [
                          {
-                             "kind": "KIND",
+                             "kind": "KIND01",
                              "description": "DESC",
                              "data": "ABCD"
                          }
@@ -1388,7 +1381,7 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "kind": "KIND",
+                         "kind": "KIND01",
                          "description": "DESC",
                          "data": "ABCD"
                      }
@@ -1408,7 +1401,7 @@ class TestOpenApi3HttpDomain(object):
 
                .. sourcecode:: http
 
-                  GET /resources/{kind} HTTP/1.1
+                  GET /resources/KIND01 HTTP/1.1
                   Host: example.com
 
                :status 200:
@@ -1422,7 +1415,7 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "kind": "KIND",
+                         "kind": "KIND01",
                          "description": "DESC",
                          "data": "ABCD"
                      }
@@ -1442,7 +1435,7 @@ class TestOpenApi3HttpDomain(object):
 
                .. sourcecode:: http
 
-                  PATCH /resources/{kind} HTTP/1.1
+                  PATCH /resources/string HTTP/1.1
                   Host: example.com
                   Content-Type: application/json
 
@@ -1462,7 +1455,7 @@ class TestOpenApi3HttpDomain(object):
                      Content-Type: application/json
 
                      {
-                         "kind": "KIND",
+                         "kind": "KIND01",
                          "description": "DESC",
                          "data": "ABCD"
                      }

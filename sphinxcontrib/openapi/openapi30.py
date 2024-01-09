@@ -13,7 +13,7 @@ import copy
 import collections
 import collections.abc
 import textwrap
-from urllib.parse import urlparse
+import urllib.parse
 
 from datetime import datetime
 import itertools
@@ -308,6 +308,7 @@ def ref2link(entities, ref):
 def _httpresource(endpoint, method, properties, convert, render_examples,
                   render_request, group_examples=False, entities=False):
     # https://github.com/OAI/OpenAPI-Specification/blob/3.0.2/versions/3.0.0.md#operation-object
+    endpoint_novar = endpoint
     parameters = properties.get('parameters', [])
     responses = properties['responses']
     query_param_examples = []
@@ -385,6 +386,10 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         if desc:
             yield '{indent}{indent}{desc}'.format(**locals())
 
+        example = _parse_schema(param['schema'], method)
+        example = param.get('example', example)
+        if example and type(example)==str:
+            endpoint_novar = endpoint_novar.replace('{'+param['name']+'}', urllib.parse.quote(example))
     # print request's query params
     for param in filter(lambda p: p['in'] == 'query', parameters):
         yield indent + ':query {type} {name}:'.format(
@@ -479,9 +484,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
 
     # print request example
     if render_examples and not group_examples:
-        endpoint_examples = endpoint
+        endpoint_examples = endpoint_novar
         if query_param_examples:
-            endpoint_examples = endpoint + "?" + \
+            endpoint_examples = endpoint_novar + "?" + \
                 parse.urlencode(query_param_examples)
 
         # print request example
@@ -554,9 +559,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
                 yield line
 
     if render_examples and group_examples:
-        endpoint_examples = endpoint
+        endpoint_examples = endpoint_novar
         if query_param_examples:
-            endpoint_examples = endpoint + "?" + \
+            endpoint_examples = endpoint_novar + "?" + \
                 parse.urlencode(query_param_examples)
 
         # print request example
@@ -647,7 +652,7 @@ def openapihttpdomain(spec, **options):
     if 'contextpath' in options:
         if 'servers' in spec:
             h = spec['servers'][0]['url']
-            contextpath = urlparse(h).path
+            contextpath = urllib.parse.urlparse(h).path
             if contextpath and contextpath[-1] == '/':
                 contextpath = contextpath[:-1]
 
