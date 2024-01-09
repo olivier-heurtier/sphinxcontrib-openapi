@@ -388,8 +388,9 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
 
         example = _parse_schema(param['schema'], method)
         example = param.get('example', example)
-        if example and type(example)==str:
-            endpoint_novar = endpoint_novar.replace('{'+param['name']+'}', urllib.parse.quote(example))
+        if example and type(example) == str:
+            endpoint_novar = \
+                endpoint_novar.replace('{'+param['name']+'}', urllib.parse.quote(example))
     # print request's query params
     for param in filter(lambda p: p['in'] == 'query', parameters):
         yield indent + ':query {type} {name}:'.format(
