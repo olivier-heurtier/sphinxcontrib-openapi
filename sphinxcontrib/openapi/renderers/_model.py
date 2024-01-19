@@ -377,25 +377,30 @@ class ModelRenderer(abc.RestructuredTextRenderer):
 
         # Check against regular expressions to be included
         if 'include' in self._options:
+            # use a set to avoid duplicates
+            new_entities = set()
             for i in self._options['include']:
                 ir = re.compile(i)
                 for entity in schemas.keys():
                     if ir.match(entity):
-                        entities.append(entity)
+                        new_entities.add(entity)
+            entities = list(new_entities)
 
         # If no include nor entities option, then take full entity
         if 'include' not in self._options and 'entities' not in self._options:
-            entities = schemas.keys()
+            entities = list(schemas.keys())
 
         # Remove entities matching regexp
         if 'exclude' in self._options:
-            tmp_entities = []
+            exc_entities = set()
             for e in self._options['exclude']:
                 er = re.compile(e)
                 for entity in entities:
-                    if not er.match(entity):
-                        tmp_entities.append(entity)
-            entities = tmp_entities
+                    if er.match(entity):
+                        exc_entities.add(entity)
+            # remove like that to preserve order
+            for entity in exc_entities:
+                entities.remove(entity)
 
         def __entities(x):
             return _entities(spec, x)

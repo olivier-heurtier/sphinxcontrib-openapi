@@ -659,25 +659,30 @@ def openapihttpdomain(spec, **options):
 
     # Check against regular expressions to be included
     if 'include' in options:
+        # use a set to avoid duplicates
+        new_paths = set()
         for i in options['include']:
             ir = re.compile(i)
             for path in spec['paths']:
                 if ir.match(path):
-                    paths.append(path)
+                    new_paths.add(path)
+        paths = list(new_paths)
 
     # If no include nor paths option, then take full path
     if 'include' not in options and 'paths' not in options:
-        paths = spec['paths']
+        paths = list(spec['paths'].keys())
 
     # Remove paths matching regexp
     if 'exclude' in options:
-        _paths = []
+        exc_paths = set()
         for e in options['exclude']:
             er = re.compile(e)
             for path in paths:
-                if not er.match(path):
-                    _paths.append(path)
-        paths = _paths
+                if er.match(path):
+                    exc_paths.add(path)
+        # remove like that to preserve order
+        for path in exc_paths:
+            paths.remove(path)
 
     render_request = False
     if 'request' in options:

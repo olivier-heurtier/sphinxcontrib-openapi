@@ -312,7 +312,8 @@ class TestOpenApi2HttpDomain(object):
 
     def test_include_option(self):
         spec = collections.defaultdict(collections.OrderedDict)
-        spec['paths']['/resource_a'] = {
+        spec['openapi'] ='3.0.0'
+        spec['paths']['/Aresource_a'] = {
             'get': {
                 'description': 'resource a',
                 'responses': {
@@ -320,7 +321,7 @@ class TestOpenApi2HttpDomain(object):
                 }
             }
         }
-        spec['paths']['/resource_b'] = {
+        spec['paths']['/Bresource_b'] = {
             'post': {
                 'description': 'resource b',
                 'responses': {
@@ -331,29 +332,32 @@ class TestOpenApi2HttpDomain(object):
 
         renderer = renderers.HttpdomainOldRenderer(None, {'include': [
             '/resource',
+            '/A.*',
+            '/Bresource.*'
         ]})
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent('''
-            .. http:get:: /resource_a
+            .. http:get:: /Aresource_a
                :synopsis: null
 
                resource a
 
                :status 200:
-                  ok
+                  ok.
 
-            .. http:post:: /resource_b
+            .. http:post:: /Bresource_b
                :synopsis: null
 
                resource b
 
                :status 404:
-                  error
+                  error.
         ''').lstrip()
 
     def test_exclude_option(self):
         spec = collections.defaultdict(collections.OrderedDict)
-        spec['paths']['/resource_a'] = {
+        spec['openapi'] ='3.0.0'
+        spec['paths']['/Aresource_a'] = {
             'get': {
                 'description': 'resource a',
                 'responses': {
@@ -361,7 +365,7 @@ class TestOpenApi2HttpDomain(object):
                 }
             }
         }
-        spec['paths']['/resource_b'] = {
+        spec['paths']['/Bresource_b'] = {
             'post': {
                 'description': 'resource b',
                 'responses': {
@@ -372,16 +376,17 @@ class TestOpenApi2HttpDomain(object):
 
         renderer = renderers.HttpdomainOldRenderer(None, {'exclude': [
             '/.*_a',
+            '/A.*',
         ]})
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent('''
-            .. http:post:: /resource_b
+            .. http:post:: /Bresource_b
                :synopsis: null
 
                resource b
 
                :status 404:
-                  error
+                  error.
         ''').lstrip()
 
     def test_method_option(self):
