@@ -312,7 +312,7 @@ class TestOpenApi2HttpDomain(object):
 
     def test_include_option(self):
         spec = collections.defaultdict(collections.OrderedDict)
-        spec['openapi'] ='3.0.0'
+        spec['openapi'] = '3.0.0'
         spec['paths']['/Aresource_a'] = {
             'get': {
                 'description': 'resource a',
@@ -356,7 +356,7 @@ class TestOpenApi2HttpDomain(object):
 
     def test_exclude_option(self):
         spec = collections.defaultdict(collections.OrderedDict)
-        spec['openapi'] ='3.0.0'
+        spec['openapi'] = '3.0.0'
         spec['paths']['/Aresource_a'] = {
             'get': {
                 'description': 'resource a',

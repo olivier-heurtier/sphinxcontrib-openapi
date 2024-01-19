@@ -1125,7 +1125,10 @@ class TestOpenApi3HttpDomain(object):
               -
         """)
 
-        renderer = renderers.ModelRenderer(None, {"include": ["A.*", "AB.*"], "exclude": ["B", ".*B"]})
+        renderer = renderers.ModelRenderer(None, {"include": ["A.*", "AB.*"], "exclude": [
+            "B",
+            ".*B"
+        ]})
         text = '\n'.join(renderer.render_restructuredtext_markup(spec))
         assert text == textwrap.dedent("""
         .. _/components/schemas/A:
