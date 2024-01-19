@@ -5,7 +5,7 @@ import yaml
 from sphinxcontrib.openapi import renderers
 
 
-class TestOpenApi3HttpDomain(object):
+class TestOpenApi3Model(object):
 
     def test_basic(self):
         renderer = renderers.ModelRenderer(None, {})

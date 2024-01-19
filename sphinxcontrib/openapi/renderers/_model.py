@@ -384,7 +384,12 @@ class ModelRenderer(abc.RestructuredTextRenderer):
                 for entity in schemas.keys():
                     if ir.match(entity):
                         new_entities.add(entity)
-            entities = list(new_entities)
+            # preserve order
+            new_list = []
+            for i in schemas.keys():
+                if i in new_entities or i in entities:
+                    new_list.append(i)
+            entities = new_list
 
         # If no include nor entities option, then take full entity
         if 'include' not in self._options and 'entities' not in self._options:

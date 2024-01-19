@@ -666,7 +666,12 @@ def openapihttpdomain(spec, **options):
             for path in spec['paths']:
                 if ir.match(path):
                     new_paths.add(path)
-        paths = list(new_paths)
+        # preserve order
+        new_list = []
+        for p in spec['paths']:
+            if p in new_paths or p in paths:
+                new_list.append(p)
+        paths = new_list
 
     # If no include nor paths option, then take full path
     if 'include' not in options and 'paths' not in options:
