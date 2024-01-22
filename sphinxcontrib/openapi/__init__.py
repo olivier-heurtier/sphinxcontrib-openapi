@@ -1,4 +1,4 @@
-"""
+"""get_distribution
     sphinxcontrib.openapi
     ---------------------
 
@@ -10,17 +10,12 @@
 """
 
 import os
-from pkg_resources import get_distribution, DistributionNotFound
 from sphinxcontrib.openapi import renderers, directive
 from sphinx.domains import Domain
 import yaml
 from docutils import nodes
 
-try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
-    # package is not installed
-    __version__ = None
+__version__ = "0.7.0"
 
 
 _DEFAULT_RENDERER_NAME = "httpdomain:old"
