@@ -8,4 +8,3 @@
     :copyright: (c) 2016 by Igor Kalnitsky.
     :license: BSD, see LICENSE for details.
 """
-
