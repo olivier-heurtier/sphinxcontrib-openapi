@@ -10,12 +10,17 @@
 """
 
 import os
+from importlib.metadata import distribution, PackageNotFoundError
 from sphinxcontrib.openapi import renderers, directive
 from sphinx.domains import Domain
 import yaml
 from docutils import nodes
 
-__version__ = "0.7.0"
+try:
+    __version__ = distribution(__name__).version
+except PackageNotFoundError:
+    # package is not installed
+    __version__ = None
 
 
 _DEFAULT_RENDERER_NAME = "httpdomain:old"
