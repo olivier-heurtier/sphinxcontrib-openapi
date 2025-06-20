@@ -245,9 +245,7 @@ def _process_one(prefix, schema, mandatory, entities, convert):
 
 
 def _build(name, schema, entities, convert, options):
-    if 'type' not in schema:
-        schema['type'] = 'object'
-    if schema.get('type', '') not in ['object', 'array']:
+    if 'type' in schema and schema['type'] not in ['object', 'array']:
         return ''
 
     yield ''
@@ -257,6 +255,8 @@ def _build(name, schema, entities, convert, options):
     yield options['header'] * len(name)
     yield ''
     D = _get_description(schema, convert)
+    if 'type' not in schema and not (set(['oneOf', 'allOf', 'anyOf']) & schema.keys()):
+        D += '\n' + _('Any content is accepted')
     if D:
         yield D
         yield ''
@@ -269,6 +269,11 @@ def _build(name, schema, entities, convert, options):
     yield '      - ' + _('Type')
     yield '      - ' + _('Description')
     yield '      - ' + _('Required')
+    if 'type' not in schema and not (set(['oneOf', 'allOf', 'anyOf']) & schema.keys()):
+        yield '    * - ...'
+        yield '      - '
+        yield '      - '
+        yield '      - '
 
     for item in _process_one([], schema, False, entities, convert):
         if str(item[0]):
@@ -289,7 +294,8 @@ def _build(name, schema, entities, convert, options):
             N += 1
             # validate the example against this schema
             try:
-                validate(instance=ex, schema=schema)
+                if 'type' in schema:
+                    validate(instance=ex, schema=schema)
                 yield ''
                 yield '.. code-block:: json'
                 yield ''

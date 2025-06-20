@@ -251,6 +251,59 @@ class TestOpenApi3Model(object):
               -
         """)
 
+    def test_no_type(self):
+        renderer = renderers.ModelRenderer(None, {})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        paths: {}
+        components:
+          schemas:
+            Test1:
+              description: This is a description
+              examples:
+                - field1: "test"
+                - "BUFFER"
+        """))
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent("""
+        .. _/components/schemas/Test1:
+
+        Test1
+        '''''
+                                       
+        This is a description
+        Any content is accepted
+
+        .. list-table:: Test1
+            :header-rows: 1
+            :widths: 25 25 45 15
+            :class: longtable
+
+            * - Attribute
+              - Type
+              - Description
+              - Required
+            * - ...
+              -
+              -
+              -
+   
+        Example #1:
+   
+        .. code-block:: json
+   
+            {
+              "field1": "test"
+            }
+
+        Example #2:
+
+        .. code-block:: json
+   
+            "BUFFER"
+        """)
+
     def test_array(self):
         renderer = renderers.ModelRenderer(None, {})
         spec = yaml.safe_load(textwrap.dedent("""
@@ -1069,14 +1122,17 @@ class TestOpenApi3Model(object):
         components:
           schemas:
             A:
+              type: object
               properties:
                 a:
                   type: string
             B:
+              type: object
               properties:
                 b:
                   type: string
             AB:
+              type: object
               properties:
                 ab:
                   type: string
