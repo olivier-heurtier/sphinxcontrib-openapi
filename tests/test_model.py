@@ -271,7 +271,7 @@ class TestOpenApi3Model(object):
 
         Test1
         '''''
-                                       
+
         This is a description
         Any content is accepted
 
@@ -288,11 +288,11 @@ class TestOpenApi3Model(object):
               -
               -
               -
-   
+
         Example #1:
-   
+
         .. code-block:: json
-   
+
             {
               "field1": "test"
             }
@@ -300,7 +300,7 @@ class TestOpenApi3Model(object):
         Example #2:
 
         .. code-block:: json
-   
+
             "BUFFER"
         """)
 
