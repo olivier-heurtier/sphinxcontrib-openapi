@@ -2226,6 +2226,81 @@ class TestOpenApi3HttpDomain(object):
                 Success.
         ''').lstrip()
 
+    def test_entity_no_type(self):
+        renderer = renderers.HttpdomainOldRenderer(None, {'examples': True})
+        spec = yaml.safe_load(textwrap.dedent("""
+        ---
+        openapi: 3.0.0
+        servers:
+        - url: https://test.org/context
+        paths:
+          /resources:
+            post:
+              summary: Summary
+              description: test service
+              requestBody:
+                description: Body
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Test1'
+              responses:
+                200:
+                  description: Success
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Test2'
+        components:
+          schemas:
+            Test1:
+              description: any type1
+              example:
+                field1: 12
+            Test2:
+              description: any type2
+        """))
+
+        text = '\n'.join(renderer.render_restructuredtext_markup(spec))
+        assert text == textwrap.dedent('''
+          .. http:post:: /resources
+             :synopsis: Summary
+
+             **Summary**
+
+             test service
+
+             :form body: Body.
+                any type1.
+
+             **Example request:**
+
+             .. sourcecode:: http
+
+                POST /resources HTTP/1.1
+                Host: example.com
+                Content-Type: application/json
+
+                {
+                    "field1": 12
+                }
+
+             :status 200:
+                Success.
+
+                **Example response:**
+
+                .. sourcecode:: http
+
+                   HTTP/1.1 200 OK
+                   Content-Type: application/json
+
+                   {
+                       "...": "..."
+                   }
+
+        ''').lstrip()
+
     def test_adv_parameters(self):
         renderer = renderers.HttpdomainOldRenderer(None, {'entities': True})
         spec = yaml.safe_load(textwrap.dedent("""

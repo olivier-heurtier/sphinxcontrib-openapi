@@ -256,33 +256,31 @@ def _build(name, schema, entities, convert, options):
     yield ''
     D = _get_description(schema, convert)
     if 'type' not in schema and not (set(['oneOf', 'allOf', 'anyOf']) & schema.keys()):
-        D += '\n' + _('Any content is accepted')
+        D += '\n' + _('Any type of content is accepted (number, string or object).')
     if D:
         yield D
         yield ''
-    yield '.. list-table:: ' + name
-    yield '    :header-rows: 1'
-    yield '    :widths: 25 25 45 15'
-    yield '    :class: longtable'
-    yield ''
-    yield '    * - ' + _('Attribute')
-    yield '      - ' + _('Type')
-    yield '      - ' + _('Description')
-    yield '      - ' + _('Required')
     if 'type' not in schema and not (set(['oneOf', 'allOf', 'anyOf']) & schema.keys()):
-        yield '    * - ...'
-        yield '      - '
-        yield '      - '
-        yield '      - '
+        pass
+    else:
+        yield '.. list-table:: ' + name
+        yield '    :header-rows: 1'
+        yield '    :widths: 25 25 45 15'
+        yield '    :class: longtable'
+        yield ''
+        yield '    * - ' + _('Attribute')
+        yield '      - ' + _('Type')
+        yield '      - ' + _('Description')
+        yield '      - ' + _('Required')
 
-    for item in _process_one([], schema, False, entities, convert):
-        if str(item[0]):
-            yield '    * - ``' + str(item[0]) + '``'
-        else:
-            yield '    * - ' + _('N/A')
-        yield '      - ' + textwrap.indent(str(item[1]), '        ').lstrip()
-        yield '      - ' + textwrap.indent(str(item[2]), '        ').lstrip()
-        yield '      - ' + _('Yes') if item[3] else '      -'
+        for item in _process_one([], schema, False, entities, convert):
+            if str(item[0]):
+                yield '    * - ``' + str(item[0]) + '``'
+            else:
+                yield '    * - ' + _('N/A')
+            yield '      - ' + textwrap.indent(str(item[1]), '        ').lstrip()
+            yield '      - ' + textwrap.indent(str(item[2]), '        ').lstrip()
+            yield '      - ' + _('Yes') if item[3] else '      -'
 
     if 'example' in schema or 'examples' in schema:
         N = 1

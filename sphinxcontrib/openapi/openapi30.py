@@ -144,7 +144,7 @@ def _parse_schema(schema, method):
                             del example[k]
                 ret = collections.OrderedDict(example)
                 # XXX should be True to be compliant with OpenAPI
-                if schema.get('additionalProperties', False) and '...' not in example:
+                if (schema.get('additionalProperties', False) or 'type' not in schema) and '...' not in example:
                     # materialize in the example the fact that additional properties can be added
                     ret['...'] = '...'
                 return ret
@@ -160,7 +160,7 @@ def _parse_schema(schema, method):
                 results.append((name, result))
 
         # XXX should be True to be compliant with OpenAPI
-        if schema.get('additionalProperties', False):
+        if schema.get('additionalProperties', False) or 'type' not in schema:
             # materialize in the example the fact that additional properties can be added
             results.append(("...", "..."))
 

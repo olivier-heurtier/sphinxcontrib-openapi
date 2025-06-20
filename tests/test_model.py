@@ -273,21 +273,8 @@ class TestOpenApi3Model(object):
         '''''
 
         This is a description
-        Any content is accepted
+        Any type of content is accepted (number, string or object).
 
-        .. list-table:: Test1
-            :header-rows: 1
-            :widths: 25 25 45 15
-            :class: longtable
-
-            * - Attribute
-              - Type
-              - Description
-              - Required
-            * - ...
-              -
-              -
-              -
 
         Example #1:
 
