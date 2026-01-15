@@ -1305,7 +1305,7 @@ class TestOpenApi3HttpDomain(object):
                         'example': {
                             'kind': 'KIND01',
                             'description': 'DESC',
-                            'data': 'ABCD',
+                            'data': 'Բարի լույս',
                         }
                     },
                 },
@@ -1347,7 +1347,7 @@ class TestOpenApi3HttpDomain(object):
                          {
                              "kind": "KIND01",
                              "description": "DESC",
-                             "data": "ABCD"
+                             "data": "Բարի լույս"
                          }
                      ]
 
@@ -1371,7 +1371,7 @@ class TestOpenApi3HttpDomain(object):
                   [
                       {
                           "description": "DESC",
-                          "data": "ABCD"
+                          "data": "Բարի լույս"
                       }
                   ]
 
@@ -1388,7 +1388,7 @@ class TestOpenApi3HttpDomain(object):
                      {
                          "kind": "KIND01",
                          "description": "DESC",
-                         "data": "ABCD"
+                         "data": "Բարի լույս"
                      }
 
 
@@ -1422,7 +1422,7 @@ class TestOpenApi3HttpDomain(object):
                      {
                          "kind": "KIND01",
                          "description": "DESC",
-                         "data": "ABCD"
+                         "data": "Բարի լույս"
                      }
 
 
@@ -1446,7 +1446,7 @@ class TestOpenApi3HttpDomain(object):
 
                   {
                       "description": "DESC",
-                      "data": "ABCD"
+                      "data": "Բարի լույս"
                   }
 
                :status 200:
@@ -1462,7 +1462,7 @@ class TestOpenApi3HttpDomain(object):
                      {
                          "kind": "KIND01",
                          "description": "DESC",
-                         "data": "ABCD"
+                         "data": "Բարի լույս"
                      }
 
         ''').lstrip()

@@ -1,6 +1,11 @@
 """OpenAPI spec renderer: render_response_example."""
 
 import textwrap
+from http import HTTPStatus
+
+TEXT_422 = "Unprocessable Entity"
+if 'UNPROCESSABLE_CONTENT' in HTTPStatus.__members__:
+    TEXT_422 = "Unprocessable Content"
 
 import pytest
 import responses
@@ -495,7 +500,7 @@ def test_render_response_example_noop(testrenderer, oas_fragment):
     [
         pytest.param("201", "Created", id="201"),
         pytest.param("307", "Temporary Redirect", id="307"),
-        pytest.param("422", "Unprocessable Entity", id="422"),
+        pytest.param("422", TEXT_422, id="422"),
     ],
 )
 def test_render_response_status_code(
@@ -573,7 +578,7 @@ def test_render_response_status_code_range(
     [
         pytest.param("201", "Created", id="201"),
         pytest.param("307", "Temporary Redirect", id="307"),
-        pytest.param("422", "Unprocessable Entity", id="422"),
+        pytest.param("422", TEXT_422, id="422"),
     ],
 )
 def test_render_response_status_code_int(

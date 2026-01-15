@@ -253,7 +253,7 @@ def _example(media_type_objects, method=None, endpoint=None, status=None,
             # According to OpenAPI v3 specs, string examples should be left unchanged
             if not isinstance(example['value'], str):
                 example['value'] = json.dumps(
-                    example['value'], indent=4, separators=(',', ': '))
+                    example['value'], indent=4, separators=(',', ': '), ensure_ascii=False)
 
         for example_name, example in examples.items():
             if 'summary' in example:
@@ -431,7 +431,8 @@ def _httpresource(endpoint, method, properties, convert, render_examples,
         if request_content and 'application/json' in request_content:
             schema = request_content['application/json']['schema']
             req_properties = json.dumps(schema['properties'], indent=2,
-                                        separators=(',', ':'))
+                                        separators=(',', ':'),
+                                        ensure_ascii=False)
             yield '{indent}'.format(**locals()) + '**{}**'.format(_('Request body:'))
             yield ''
             yield '{indent}.. sourcecode:: json'.format(**locals())

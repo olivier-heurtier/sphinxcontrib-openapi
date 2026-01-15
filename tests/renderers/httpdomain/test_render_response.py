@@ -1,6 +1,12 @@
 """OpenAPI spec renderer: render_response."""
 
 import textwrap
+from http import HTTPStatus
+
+TEXT_422 = "Unprocessable Entity"
+if 'UNPROCESSABLE_CONTENT' in HTTPStatus.__members__:
+    TEXT_422 = "Unprocessable Content"
+
 import pytest
 
 from sphinxcontrib.openapi import renderers
@@ -218,7 +224,7 @@ def test_render_response_content_non_2xx(testrenderer, oas_fragment, status_code
         pytest.param("301", "Moved Permanently", id="301"),
         pytest.param("307", "Temporary Redirect", id="307"),
         pytest.param("401", "Unauthorized", id="401"),
-        pytest.param("422", "Unprocessable Entity", id="422"),
+        pytest.param("422", TEXT_422, id="422"),
     ],
 )
 def test_render_response_content_custom(fakestate, oas_fragment, status_code, status):
